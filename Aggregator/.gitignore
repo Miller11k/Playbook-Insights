@@ -1,0 +1,30 @@
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# Logs
+*.log
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+
+# Cache and temporary files
+*.cache
+*.tmp
+*.pickle
+
+# Test and coverage files
+.pytest_cache/
+.coverage
+htmlcov/

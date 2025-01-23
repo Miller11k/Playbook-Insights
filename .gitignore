@@ -1,0 +1,38 @@
+# System files (macOS, Linux, Windows)
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment files
+.env
+.env.*
+
+# Python cache
+**/__pycache__/
+**/*.py[cod]
+
+# Node.js
+node_modules/
+
+# Build and output artifacts
+dist/
+build/
+coverage/
+*.log
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# OS-specific files
+*.~lock.*
+*.bak
+.Trash-*
