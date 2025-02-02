@@ -1,0 +1,11 @@
+{
+    "name": "frontend",
+    "version": "1.0.0",
+    "scripts": {
+      "lint": "eslint src/"
+    },
+    "devDependencies": {
+      "eslint": "^8.56.0",
+      "eslint-plugin-react": "^7.33.2"
+    }
+  }
