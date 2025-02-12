@@ -1,8 +1,9 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
+# This class represents a player in the database.
 class Player(Base):
     __tablename__ = 'players'
     id = Column(String(50), primary_key=True)
@@ -18,9 +19,10 @@ class Player(Base):
     status = Column(String(50))
     jersey_number = Column(Integer)
 
-    game_logs = relationship("GameLog", back_populates="player", cascade="all, delete-orphan")
-    seasonal_stats = relationship("SeasonalStats", back_populates="player", cascade="all, delete-orphan")
-    
+    game_logs = relationship("PlayerGameLog", back_populates="player", cascade="all, delete-orphan")
+    # (seasonal_stats relationship omitted for brevity)
+
+# This class represents a team.
 class Team(Base):
     __tablename__ = 'teams'
     team_abbr = Column(String(3), primary_key=True)
@@ -28,9 +30,17 @@ class Team(Base):
     team_color = Column(String(7))
     team_color2 = Column(String(7))
     team_logo = Column(String(200))
+
+# This class represents the game logs for players.
+class PlayerGameLog(Base):
+    __tablename__ = 'player_game_logs'
+    __table_args__ = (
+        UniqueConstraint(
+            'player_id', 'season', 'week', 'season_type', 'opponent_team',
+            name='uix_player_game_logs_composite' 
+        ),
+    )
     
-class GameLog(Base):
-    __tablename__ = 'game_logs'
     id = Column(Integer, primary_key=True)
     player_id = Column(String(50), ForeignKey('players.id'))
     player_name = Column(String(100))
