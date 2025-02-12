@@ -1,13 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from schema import Base, Player, Team, GameLog, SeasonalStats, PlayerUpdateHistory
+from schema import Base, Player, Team, GameLog
 import nfl_data_py as nfl
 import pandas as pd
 from datetime import datetime
 import math
 
-def initialize_database(db_url='postgresql://fran:Boca2022@localhost:5432/nfl_data'):
+def initialize_database(db_url='postgresql://shkembi:B01ler@172.17.0.3:5432/database'):
     engine = create_engine(db_url)
     Base.metadata.create_all(engine)
     return engine
@@ -160,53 +160,6 @@ def populate_database(engine, years=[2024]):
             }
             game_log_records.append(log)
         session.bulk_insert_mappings(GameLog, game_log_records)
-        
-        # -------------------------------
-        # Calculate and insert seasonal stats
-        # -------------------------------
-        # seasonal_agg = game_logs.groupby(['player_id', 'season']).agg({
-        #     'week': 'count',
-        #     'passing_yards': 'sum',
-        #     'passing_tds': 'sum',
-        #     'rushing_yards': 'sum',
-        #     'rushing_tds': 'sum',
-        #     'receiving_yards': 'sum',
-        #     'receiving_tds': 'sum',
-        #     'targets': 'sum',
-        #     'receptions': 'sum',
-        #     'sacks': 'sum',
-        #     'interceptions': 'sum'
-        # }).reset_index()
-        
-        # seasonal_stats_records = []
-        # for _, row in seasonal_agg.iterrows():
-        #     stats = {
-        #         'player_id': row['player_id'],
-        #         'season': int(row['season']),
-        #         'games_played': int(row['week']),
-        #         'total_passing_yards': float(row['passing_yards']),
-        #         'total_passing_tds': int(row['passing_tds']),
-        #         'total_rushing_yards': float(row['rushing_yards']),
-        #         'total_rushing_tds': int(row['rushing_tds']),
-        #         'total_receiving_yards': float(row['receiving_yards']),
-        #         'total_receiving_tds': int(row['receiving_tds']),
-        #         'total_targets': int(row['targets']),
-        #         'total_receptions': int(row['receptions']),
-        #         'total_sacks': float(row['sacks']),
-        #         'total_interceptions': int(row['interceptions'])
-        #     }
-        #     seasonal_stats_records.append(stats)
-        # session.bulk_insert_mappings(SeasonalStats, seasonal_stats_records)
-        
-        # # -------------------------------
-        # # Initialize update history
-        # # -------------------------------
-        # update_records = [{'player_id': pid, 'last_updated': datetime.now()} 
-        #                   for pid in rosters['player_id'].unique()]
-        # session.bulk_insert_mappings(PlayerUpdateHistory, update_records)
-        
-        # session.commit()
-        # print("Database populated successfully!")
         
     except Exception as e:
         session.rollback()

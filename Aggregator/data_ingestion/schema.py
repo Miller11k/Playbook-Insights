@@ -89,37 +89,3 @@ class GameLog(Base):
     fantasy_points_ppr = Column(Float, default=0)
     
     player = relationship("Player", back_populates="game_logs")
-
-# class SeasonalStats(Base):
-#     __tablename__ = 'seasonal_stats'
-#     id = Column(Integer, primary_key=True)
-#     player_id = Column(String(50), ForeignKey('players.id'))
-#     season = Column(Integer)
-#     games_played = Column(Integer)
-#     games_started = Column(Integer)
-    
-#     # Offensive
-#     total_passing_yards = Column(Float, default=0)
-#     total_passing_tds = Column(Integer, default=0)
-#     total_rushing_yards = Column(Float, default=0)
-#     total_rushing_tds = Column(Integer, default=0)
-#     total_receiving_yards = Column(Float, default=0)
-#     total_receiving_tds = Column(Integer, default=0)
-#     total_targets = Column(Integer, default=0)
-#     total_receptions = Column(Integer, default=0)
-#     total_fumbles = Column(Integer, default=0)
-    
-#     # Defensive
-#     total_tackles = Column(Float, default=0)
-#     total_sacks = Column(Float, default=0)
-#     total_interceptions = Column(Integer, default=0)
-#     total_passes_defended = Column(Integer, default=0)
-    
-#     player = relationship("Player", back_populates="seasonal_stats")
-
-# class PlayerUpdateHistory(Base):
-#     __tablename__ = 'player_update_history'
-#     player_id = Column(String(50), ForeignKey('players.id'), primary_key=True)
-#     last_updated = Column(Date)
-#     last_game_log = Column(Date)
-#     needs_update = Column(Boolean, default=True)
