@@ -234,5 +234,4 @@ def populate_database(engine, years=[2024]):
 
 if __name__ == "__main__":
     engine = initialize_database()  # Uses DATABASE_URL from the environment
-    # Example: populate data for 2022, 2023, and 2024 seasons.
     populate_database(engine, years=[2022, 2023, 2024])
