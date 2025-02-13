@@ -1,7 +1,6 @@
 import os
 import math
 from datetime import datetime
-
 import pandas as pd
 import nfl_data_py as nfl
 from sqlalchemy import create_engine
