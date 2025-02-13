@@ -59,7 +59,7 @@ def populate_teams(session, teams_df):
 
 def upsert_players(session, rosters_df):
     """
-    Upserts players into the Player table using PostgreSQL's ON CONFLICT DO UPDATE.
+    Upserts players into the Player table using a single bulk operation with PostgreSQL's ON CONFLICT DO UPDATE.
     """
     if rosters_df.empty:
         print("[DEBUG] No player records to upsert.")
@@ -98,26 +98,26 @@ def upsert_players(session, rosters_df):
             else:
                 record['height'] = str(record['height'])
 
-    # Upsert each record.
-    for record in records:
-        stmt = pg_insert(Player.__table__).values(**record)
-        stmt = stmt.on_conflict_do_update(
-            index_elements=['id'],
-            set_={
-                'name': stmt.excluded.name,  # Full name of the player
-                'position': stmt.excluded.position,  # Player's position (e.g., QB, WR, RB, TE)
-                'team': stmt.excluded.team,  # Current team the player is assigned to
-                'birth_date': stmt.excluded.birth_date,  # Date of birth of the player (YYYY-MM-DD)
-                'height': stmt.excluded.height,  # Player's height (string format, e.g., "6'2\"")
-                'weight': stmt.excluded.weight,  # Player's weight in pounds
-                'college': stmt.excluded.college,  # College the player attended
-                'rookie_year': stmt.excluded.rookie_year,  # Year the player started as a rookie in the NFL
-                'entry_year': stmt.excluded.entry_year,  # Year the player entered the NFL (could differ from rookie year)
-                'status': stmt.excluded.status,  # Player's current status (Active, Injured, Free Agent, etc.)
-                'jersey_number': stmt.excluded.jersey_number  # Player's jersey number
-            }
-        )
-        session.execute(stmt)
+    # Build a single bulk upsert statement.
+    from sqlalchemy.dialects.postgresql import insert as pg_insert
+    stmt = pg_insert(Player.__table__).on_conflict_do_update(
+        index_elements=['id'],
+        set_={
+            'name': pg_insert(Player.__table__).excluded.name,
+            'position': pg_insert(Player.__table__).excluded.position,
+            'team': pg_insert(Player.__table__).excluded.team,
+            'birth_date': pg_insert(Player.__table__).excluded.birth_date,
+            'height': pg_insert(Player.__table__).excluded.height,
+            'weight': pg_insert(Player.__table__).excluded.weight,
+            'college': pg_insert(Player.__table__).excluded.college,
+            'rookie_year': pg_insert(Player.__table__).excluded.rookie_year,
+            'entry_year': pg_insert(Player.__table__).excluded.entry_year,
+            'status': pg_insert(Player.__table__).excluded.status,
+            'jersey_number': pg_insert(Player.__table__).excluded.jersey_number
+        }
+    )
+    # Execute the statement once with all records.
+    session.execute(stmt, records)
     print(f"[DEBUG] Upserted {len(records)} player records.")
 
 
@@ -180,8 +180,6 @@ def populate_game_logs(session, game_logs_df):
             'receiving_first_downs': int(row.get('receiving_first_downs', 0)),  # Receptions resulting in first downs
             'receiving_epa': float(row.get('receiving_epa', 0)),  # Expected points added from receiving plays
             'receiving_2pt_conversions': int(row.get('receiving_2pt_conversions', 0)),  # Successful 2-point conversions via receiving
-
-            # Defensive Stats (No defensive stats currently implemented)
 
             # Classifier Stats (Advanced Analytics)
             'pacr': float(row.get('pacr', 0)),  # Passing Air Conversion Ratio (efficiency of air yards conversion)
