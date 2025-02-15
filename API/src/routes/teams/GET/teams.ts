@@ -1,6 +1,6 @@
 // Import libraries needed to have information to and from API
 import { Request, Response, Router } from 'express';
-import { logRequest, sendSuccessResponse, sendErrorResponse } from '../helpers/get_helper';
+import { logRequest, sendSuccessResponse, sendErrorResponse } from '../../helpers/get_helper';
 
 // Create a new router instance to define and group related routes
 const router = Router();
