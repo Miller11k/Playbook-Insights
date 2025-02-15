@@ -6,6 +6,7 @@ import routesRouter from '../../../src/routes/other/routes'; // Adjust path as n
  * Initializes an Express application for testing.
  */
 const app = express();
+app.use(express.json()); // Ensures JSON parsing
 app.use('/routes', routesRouter);
 
 describe('Routes Endpoint', () => {
@@ -23,14 +24,13 @@ describe('Routes Endpoint', () => {
         // Assert that the response body contains the expected routes array
         expect(response.body).toEqual({
             routes: [
-                {
-                    route: '/',
-                    methods: ['GET']
-                },
-                {
-                    route: '/routes',
-                    methods: ['GET']
-                }
+                { route: '/status', methods: ['GET'] },
+                { route: '/routes', methods: ['GET'] },
+                { route: '/players', methods: ['GET', 'POST', 'PUT', 'DELETE'] },
+                { route: '/teams', methods: ['GET', 'POST', 'PUT', 'DELETE'] },
+                { route: '/defense/performance', methods: ['GET'] },
+                { route: '/games', methods: ['GET', 'POST'] },
+                { route: '/rosters', methods: ['GET', 'POST', 'PUT', 'DELETE'] }
             ]
         });
     });
