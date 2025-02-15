@@ -1,6 +1,6 @@
 import express from 'express';
 import { corsConfig, rateLimiter } from './config/cors.js';
-import { connectDatabases } from './config/dbConfig.js';
+// import { connectDatabases } from './config/dbConfig.js'; // Commented out until database is finalized
 import routes from './routes/index.js';
 
 const app = express();
@@ -15,7 +15,7 @@ app.use('/', routes);
 
 
 // Initialize database connections
-await connectDatabases();
+// await connectDatabases();  // Commented out until database is finalized
 
 // Start the server
 const PORT = parseInt(process.env.API_PORT || '3000', 10); // Ensure it's a string or default to '3000'

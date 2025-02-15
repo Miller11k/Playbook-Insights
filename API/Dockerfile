@@ -1,5 +1,5 @@
 # Use the official Node.js image
-FROM node:16
+FROM node:20
 
 # Set the working directory in the container
 WORKDIR /app
@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Command to run the API
-CMD ["npm", "start"]
+CMD ["npm", "run", "start-server"]
