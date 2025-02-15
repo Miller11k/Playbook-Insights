@@ -1,26 +1,33 @@
-# System files
+#Independednt Notes
+notes/
+
+# Node.js
+node_modules/
+.env
+.env.dev
+coverage/
+
+# OS-specific files
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# Node.js modules
-node_modules/
-
-# TypeScript build artifacts
-dist/
-*.js.map
-*.tsbuildinfo
-
-# Logs and debug files
+# Logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Temporary files
-*.tmp
-*.bak
+# IDE/editor-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Coverage files
-coverage/
-.nyc_output/
+#checker
+__pycache__
+
+#added space so it updates name
+
+#dist 
+dist/
