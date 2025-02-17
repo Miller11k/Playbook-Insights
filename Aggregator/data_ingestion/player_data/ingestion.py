@@ -60,7 +60,8 @@ def ingest_player_game_logs(session, game_logs_df, engine):
     if game_logs_df.empty:
         print("[DEBUG] No player game logs data available.")
         return
-    
+    print(f"[DEBUG] Starting individual player ingestion")
+    print(f"[DEBUG] This usually takes a minute or 2")
     # Group game logs by player_id to create separate tables per player
     grouped = game_logs_df.groupby('player_id')
     for player_id, group in grouped:
@@ -139,7 +140,7 @@ def ingest_player_game_logs(session, game_logs_df, engine):
         # Bulk insert the game log records for the player
         session.bulk_insert_mappings(GameLogModel, records)
         session.commit()
-        print(f"[DEBUG] Ingested {len(records)} game logs for player {player_id}.")
+    print(f"[DEBUG] Finished player ingestion")
 
 def ingest_player_data(years=[2022, 2023, 2024], engine=None):
     """

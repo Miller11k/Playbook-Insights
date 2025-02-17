@@ -28,6 +28,8 @@ def create_team_game_log_model(team_abbr):
     Dynamically creates an ORM model class for a team's game log table.
     
     The table name is derived from the team's abbreviation as: {team_abbr}_game_logs.
+    The __table_args__ includes 'extend_existing': True to allow redefinition if the table
+    is already present in the MetaData.
     
     Args:
         team_abbr (str): The team's abbreviation.
@@ -39,6 +41,7 @@ def create_team_game_log_model(team_abbr):
     
     class TeamGameLog(BaseTeam):
         __tablename__ = tablename
+        __table_args__ = {'extend_existing': True}
         # Column linking to the team's info (foreign key)
         team_abbr = Column(String(3), ForeignKey('team_info.team_abbr'), nullable=False)
         # Game identification columns (composite primary key)

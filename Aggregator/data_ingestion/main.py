@@ -21,7 +21,7 @@ def main():
         print("[DEBUG] Initialized team_data database.")
         
         # Ingest player and team data using specified years
-        # ingest_player_data(years=[2022, 2023, 2024], engine=player_engine)
+        ingest_player_data(years=[2022, 2023, 2024], engine=player_engine)
         ingest_team_data(years=[2022, 2023, 2024], engine=team_engine)
         
         print("[DEBUG] Data ingestion complete.")
