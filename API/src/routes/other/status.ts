@@ -1,10 +1,13 @@
 import express, { Request, Response, Router } from 'express';
+import { printRouteHit } from '../../helpers/formatHelper';
 
 // Initialize the router
 const router = Router();
 
 // Define the root route
 router.get('/', (req: Request, res: Response) => {
+    printRouteHit('GET', '/');    // Log the route hit
+
     const htmlResponse = `
         <!DOCTYPE html>
         <html lang="en">

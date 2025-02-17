@@ -1,9 +1,9 @@
 // Import libraries needed to have information to and from API
 import { Request, Response, Router } from 'express';
-import { logRequest, sendSuccessResponse, sendErrorResponse } from '../helpers/get_helper';
+import { printRouteHit } from '../../helpers/formatHelper';
+// import { logRequest, sendSuccessResponse, sendErrorResponse } from '../helpers/get_helper';
 // Import libraries needed to have information to and from API
-import { Request, Response, Router } from 'express';
-import { logRequest, sendSuccessResponse, sendErrorResponse } from './helpers/get_helper';
+// import { logRequest, sendSuccessResponse, sendErrorResponse } from './helpers/get_helper';
 
 // Create a new router instance to define and group related routes
 const router = Router();
@@ -19,7 +19,7 @@ const router = Router();
  * @description Returns a list of all available API routes and their supported methods.
  */
 router.get('/routes', async (req: Request, res: Response) => {
-    logRequest('/routes');
+    printRouteHit('GET', '/routes');    // Log the route hit
 
     try {
         const availableRoutes = [
@@ -31,10 +31,10 @@ router.get('/routes', async (req: Request, res: Response) => {
             { route: '/games', methods: ['GET', 'POST'] },
             { route: '/rosters', methods: ['GET', 'POST', 'PUT', 'DELETE'] }
         ];
-        sendSuccessResponse(res, 200, { routes: availableRoutes }, "Available API routes");
+        // sendSuccessResponse(res, 200, { routes: availableRoutes }, "Available API routes");
     } catch (error) {
         console.error('Error in /routes:', error);
-        sendErrorResponse(res, 500, 'Internal Server Error');
+        // sendErrorResponse(res, 500, 'Internal Server Error');
     }
 });
 
