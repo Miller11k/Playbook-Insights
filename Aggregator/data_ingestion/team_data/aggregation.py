@@ -60,6 +60,7 @@ def aggregate_defensive_stats(df):
     gen = df.groupby(['opponent_team', 'season', 'week', 'season_type'], as_index=False).agg({
         'passing_yards': 'sum',
         'rushing_yards': 'sum',
+        'carries': 'sum',
         'sacks': 'sum',
         'interceptions': 'sum',
         'recent_team': 'first'  # Offensive team for this game.
@@ -68,7 +69,8 @@ def aggregate_defensive_stats(df):
         'opponent_team': 'team_abbr',
         'passing_yards': 'passing_yards_allowed',
         'rushing_yards': 'rushing_yards_allowed',
-        'recent_team': 'opponent_team'
+        'recent_team': 'opponent_team',
+        'carries': 'carries_allowed'
     })
     
     # Receiving yards allowed by defense.
@@ -83,14 +85,35 @@ def aggregate_defensive_stats(df):
     recv_rb = df[df['position'] == 'RB'].groupby(
         ['opponent_team', 'season', 'week', 'season_type'], as_index=False
     )['receiving_yards'].sum().rename(columns={'opponent_team': 'team_abbr', 'receiving_yards': 'rb_receiving_yards_allowed'})
+
+     # Receptions allowed by defense.
+    rec_te = df[df['position'] == 'TE'].groupby(
+        ['opponent_team', 'season', 'week', 'season_type'], as_index=False
+    )['receptions'].sum().rename(columns={'opponent_team': 'team_abbr', 'receptions': 'te_receptions_allowed'})
+    
+    rec_wr = df[df['position'] == 'WR'].groupby(
+        ['opponent_team', 'season', 'week', 'season_type'], as_index=False
+    )['receptions'].sum().rename(columns={'opponent_team': 'team_abbr', 'receptions': 'wr_receptions_allowed'})
+    
+    rec_rb = df[df['position'] == 'RB'].groupby(
+        ['opponent_team', 'season', 'week', 'season_type'], as_index=False
+    )['receptions'].sum().rename(columns={'opponent_team': 'team_abbr', 'receptions': 'rb_receptions_allowed'})
     
     # Merge receiving aggregations.
     recv = pd.merge(recv_te, recv_wr, on=['team_abbr', 'season', 'week', 'season_type'], how='outer')
     recv = pd.merge(recv, recv_rb, on=['team_abbr', 'season', 'week', 'season_type'], how='outer')
     recv = recv.fillna(0)
     
+    # Merge receptions aggregations.
+    rec = pd.merge(rec_te, rec_wr, on=['team_abbr', 'season', 'week', 'season_type'], how='outer')
+    rec = pd.merge(rec, rec_rb, on=['team_abbr', 'season', 'week', 'season_type'], how='outer')
+    rec = rec.fillna(0)
+
+    recv = pd.merge(recv, rec, on=['team_abbr', 'season', 'week', 'season_type'], how='outer')
+
     # Merge general defensive and receiving stats.
     def_df = pd.merge(gen, recv, on=['team_abbr', 'season', 'week', 'season_type'], how='outer')
+    # def_df = pd.merge(gen, rec, on=['team_abbr', 'season', 'week', 'season_type'], how='outer')
     def_df = def_df.fillna(0)
     return def_df
 

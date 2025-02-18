@@ -86,6 +86,10 @@ def aggregate_team_game_logs(session, game_logs_df, engine):
                 "te_yards_allowed": float(row.get('te_yards_allowed', 0)),
                 "wr_yards_allowed": float(row.get('wr_yards_allowed', 0)),
                 "rb_receiving_yards_allowed": float(row.get('rb_receiving_yards_allowed', 0)),
+                "te_receptions_allowed": float(row.get('te_receptions_allowed', 0)),
+                "wr_receptions_allowed": float(row.get('wr_receptions_allowed', 0)),
+                "rb_receptions_allowed": float(row.get('rb_receptions_allowed', 0)),
+                "carries_allowed": int(row.get('carries_allowed')),
                 "sacks": float(row.get('sacks', 0)),
                 "interceptions": int(row.get('interceptions', 0))
             },
