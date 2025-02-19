@@ -22,7 +22,8 @@ def ingest_player_basic_info(session, roster_df):
     if roster_df.empty:
         print("[DEBUG] No player roster data available.")
         return
-
+    print(f"[DEBUG] Starting to ingest {len(roster_df)} players.")
+    roster_df = roster_df.drop_duplicates(subset=['player_id'], keep='last')
     records = []
     for _, row in roster_df.iterrows():
         player_id = row.get('player_id')
@@ -42,9 +43,7 @@ def ingest_player_basic_info(session, roster_df):
             "info": info
         })
     
-    # Using session.merge allows upserting the record
-    for record in records:
-        session.merge(PlayerBasicInfo(**record))
+    session.bulk_insert_mappings(PlayerBasicInfo, records)
     session.commit()
     print(f"[DEBUG] Ingested {len(records)} player basic info records.")
 
@@ -62,9 +61,16 @@ def ingest_player_game_logs(session, game_logs_df, engine):
         return
     print(f"[DEBUG] Starting individual player ingestion")
     print(f"[DEBUG] This usually takes a minute or 2")
+
     # Group game logs by player_id to create separate tables per player
     grouped = game_logs_df.groupby('player_id')
     for player_id, group in grouped:
+
+        group = group.drop_duplicates(
+            subset=['season', 'week', 'season_type', 'opponent_team'],
+            keep='last'
+        )
+
         # Dynamically create/get the game log model for this player
         GameLogModel = create_player_game_log_model(player_id)
         # Create the table in the database if not already present
