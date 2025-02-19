@@ -2,9 +2,9 @@
 Main module to orchestrate data ingestion for player_data and team_data databases using nfl-data-py.
 """
 
-from player_data.database import initialize_player_database
+from player_data.database import initialize_player_database, is_player_database_populated, get_player_session
 from player_data.ingestion import ingest_player_data
-from team_data.database import initialize_team_database
+from team_data.database import initialize_team_database, is_team_database_populated, get_team_session
 from team_data.ingestion import ingest_team_data
 from datetime import datetime
 
@@ -14,10 +14,19 @@ def main() -> None:
     """
     try:
         player_engine = initialize_player_database()
+        player_session = get_player_session(player_engine)
+
         print("[DEBUG] Initialized player_data database.")
         
         team_engine = initialize_team_database()
+        team_session = get_team_session(team_engine)
+
         print("[DEBUG] Initialized team_data database.")
+
+        # Check if databases are already populated
+        if is_player_database_populated(player_session) or is_team_database_populated(team_session):
+            print("[ERROR] Database is already populated.")
+            return  # Stop execution
         
         current_year = datetime.now().year
         years = list(range(2000, current_year))

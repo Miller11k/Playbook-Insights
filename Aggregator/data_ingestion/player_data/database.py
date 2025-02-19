@@ -7,7 +7,19 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.engine import Engine
-from .models import BasePlayer
+from .models import PlayerBasicInfo, BasePlayer
+
+def is_player_database_populated(session: Session) -> bool:
+    """
+    Checks if the player database already contains data.
+
+    Args:
+        session: SQLAlchemy session.
+
+    Returns:
+        bool: True if the database contains records, False otherwise.
+    """
+    return session.query(PlayerBasicInfo).first() is not None
 
 def initialize_player_database(db_url: str = None) -> Engine:
     """

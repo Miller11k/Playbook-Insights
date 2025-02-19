@@ -7,7 +7,19 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.engine import Engine
-from .models import BaseTeam
+from .models import BaseTeam, TeamInfo
+
+def is_team_database_populated(session: Session) -> bool:
+    """
+    Checks if the team database already contains data.
+
+    Args:
+        session: SQLAlchemy session.
+
+    Returns:
+        bool: True if the database contains records, False otherwise.
+    """
+    return session.query(TeamInfo).first() is not None
 
 def initialize_team_database(db_url: str = None) -> Engine:
     """
