@@ -1,14 +1,14 @@
 import nfl_data_py as nfl
 import pandas as pd
 from sqlalchemy.orm import Session
+from sqlalchemy.engine import Engine
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from .database import get_team_session
 from .models import TeamInfo, create_team_game_log_model
 from team_data.aggregation import aggregate_offensive_stats, aggregate_defensive_stats, merge_team_aggregates
 
-
-def ingest_team_info(session: Session, teams_df: pd.DataFrame):
+def ingest_team_info(session: Session, teams_df: pd.DataFrame) -> None:
     """
     Ingests team information into the team_info table, using a bulk insert with
     'ON CONFLICT DO NOTHING' to skip duplicates if they already exist in the DB.
@@ -21,11 +21,9 @@ def ingest_team_info(session: Session, teams_df: pd.DataFrame):
         print("[DEBUG] No team data available.")
         return
     
-    # 1. Deduplicate on team_abbr so we only have one row per team in the DataFrame
     teams_df = teams_df.drop_duplicates(subset=['team_abbr'], keep='last')
     print(f"[DEBUG] Inserting {len(teams_df)} unique team records into team_info.")
     
-    # 2. Build a list of dicts for bulk insert
     records = []
     for _, row in teams_df.iterrows():
         team_abbr = row.get('team_abbr')
@@ -40,17 +38,14 @@ def ingest_team_info(session: Session, teams_df: pd.DataFrame):
             "team_data": team_data
         })
 
-    # 3. Use PostgreSQL insert with on_conflict_do_nothing so we skip duplicates
     stmt = pg_insert(TeamInfo).values(records)
-    # The primary key is team_abbr, so we specify it as the index_elements:
     stmt = stmt.on_conflict_do_nothing(index_elements=['team_abbr'])
     
     session.execute(stmt)
     session.commit()
     print(f"[DEBUG] Insert attempted for {len(records)} teams; duplicates were skipped if present.")
 
-
-def aggregate_team_game_logs(session: Session, game_logs_df: pd.DataFrame, engine):
+def aggregate_team_game_logs(session: Session, game_logs_df: pd.DataFrame, engine: Engine) -> None:
     """
     Aggregates player-level game logs into team-level records and inserts them
     into dynamically created game log tables. If the DB truly is empty, we'll
@@ -72,7 +67,6 @@ def aggregate_team_game_logs(session: Session, game_logs_df: pd.DataFrame, engin
         team_count += 1
         print(f"[DEBUG] Inserting team logs for {team_abbr} (team {team_count}/{len(grouped)}).")
 
-        # Optionally deduplicate each team's aggregated data
         group = group.drop_duplicates(
             subset=['season', 'week', 'season_type', 'opponent_team'],
             keep='last'
@@ -116,18 +110,12 @@ def aggregate_team_game_logs(session: Session, game_logs_df: pd.DataFrame, engin
                 }
             })
 
-        # If the table may not be empty, you can do one of:
-        # 1. TRUNCATE the table first if you truly want fresh data only.
-        # 2. Use "on_conflict_do_nothing" or an upsert approach if you want to skip or update duplicates.
-        # For a first-time ingest on an empty table, a simple bulk_insert_mappings is fine.
-
         session.bulk_insert_mappings(GameLogModel, records)
         session.commit()
 
     print(f"[DEBUG] Aggregated and ingested {len(merged)} team game log records in bulk.")
 
-
-def ingest_team_data(years=[2022, 2023, 2024], engine=None):
+def ingest_team_data(years: list = [2022, 2023, 2024], engine: Engine = None) -> None:
     """
     Main function to ingest team data using nfl-data-py.
     """
@@ -139,8 +127,5 @@ def ingest_team_data(years=[2022, 2023, 2024], engine=None):
     
     session = get_team_session(engine)
     
-    # Bulk insert team info (deduplicating on team_abbr, skipping if already exists)
     ingest_team_info(session, teams_df)
-    
-    # Aggregate logs to team logs, then bulk insert for each team
     aggregate_team_game_logs(session, game_logs_df, engine)

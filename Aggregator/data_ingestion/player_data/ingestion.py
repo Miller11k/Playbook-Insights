@@ -7,11 +7,13 @@ import math
 import pandas as pd
 import nfl_data_py as nfl
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.orm import Session
+from sqlalchemy.engine import Engine
 from .database import get_player_session
 from .models import PlayerBasicInfo, create_player_game_log_model
 from utils import clean_date_field, clean_optional_int, clean_optional_float
 
-def ingest_player_basic_info(session, roster_df):
+def ingest_player_basic_info(session: Session, roster_df: pd.DataFrame) -> None:
     """
     Ingests player basic information into the player_basic_info table.
     
@@ -27,7 +29,6 @@ def ingest_player_basic_info(session, roster_df):
     records = []
     for _, row in roster_df.iterrows():
         player_id = row.get('player_id')
-        # Build the info JSON structure as defined in the schema
         info = {
             "name": row.get('player_name'),
             "position": row.get('position'),
@@ -47,7 +48,7 @@ def ingest_player_basic_info(session, roster_df):
     session.commit()
     print(f"[DEBUG] Ingested {len(records)} player basic info records.")
 
-def ingest_player_game_logs(session, game_logs_df, engine):
+def ingest_player_game_logs(session: Session, game_logs_df: pd.DataFrame, engine: Engine) -> None:
     """
     Ingests player game log data into dynamically created game log tables.
     
@@ -62,23 +63,18 @@ def ingest_player_game_logs(session, game_logs_df, engine):
     print(f"[DEBUG] Starting individual player ingestion")
     print(f"[DEBUG] This usually takes a minute or 2")
 
-    # Group game logs by player_id to create separate tables per player
     grouped = game_logs_df.groupby('player_id')
     for player_id, group in grouped:
-
         group = group.drop_duplicates(
             subset=['season', 'week', 'season_type', 'opponent_team'],
             keep='last'
         )
 
-        # Dynamically create/get the game log model for this player
         GameLogModel = create_player_game_log_model(player_id)
-        # Create the table in the database if not already present
         GameLogModel.__table__.create(bind=engine, checkfirst=True)
         
         records = []
         for _, row in group.iterrows():
-            # Build basic_info JSON structure for the game log
             basic_info = {
                 "player_name": row.get('player_name'),
                 "player_display_name": row.get('player_display_name'),
@@ -87,7 +83,6 @@ def ingest_player_game_logs(session, game_logs_df, engine):
                 "headshot_url": row.get('headshot_url'),
                 "recent_team": row.get('recent_team')
             }
-            # Build JSON stats for passing, rushing, receiving and extra data
             passing_stats = {
                 "completions": clean_optional_int(row.get('completions', 0)),
                 "attempts": clean_optional_int(row.get('attempts', 0)),
@@ -143,12 +138,11 @@ def ingest_player_game_logs(session, game_logs_df, engine):
                 "extra_data": extra_data
             }
             records.append(record)
-        # Bulk insert the game log records for the player
         session.bulk_insert_mappings(GameLogModel, records)
         session.commit()
     print(f"[DEBUG] Finished player ingestion")
 
-def ingest_player_data(years=[2022, 2023, 2024], engine=None):
+def ingest_player_data(years: list = [2022, 2023, 2024], engine: Engine = None) -> None:
     """
     Main function to ingest player data using the nfl-data-py library.
     
@@ -156,7 +150,6 @@ def ingest_player_data(years=[2022, 2023, 2024], engine=None):
         years (list, optional): List of years to import data for.
         engine: SQLAlchemy engine for the player_data database.
     """
-    # Import and clean player roster and game logs using nfl-data-py
     print("[DEBUG] Importing player roster data...")
     roster_df = nfl.import_seasonal_rosters(years)
     roster_df = nfl.clean_nfl_data(roster_df)
@@ -164,7 +157,6 @@ def ingest_player_data(years=[2022, 2023, 2024], engine=None):
     print("[DEBUG] Importing player game log data...")
     game_logs_df = nfl.import_weekly_data(years)
     
-    # Get a session from the engine and run ingestion steps
     session = get_player_session(engine)
     ingest_player_basic_info(session, roster_df)
     ingest_player_game_logs(session, game_logs_df, engine)

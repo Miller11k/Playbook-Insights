@@ -20,10 +20,10 @@ class TeamInfo(BaseTeam):
     team_abbr = Column(String(3), primary_key=True)
     team_data = Column(JSON, nullable=False)
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<TeamInfo(team_abbr={self.team_abbr})>"
 
-def create_team_game_log_model(team_abbr):
+def create_team_game_log_model(team_abbr: str):
     """
     Dynamically creates an ORM model class for a team's game log table.
     
@@ -42,19 +42,16 @@ def create_team_game_log_model(team_abbr):
     class TeamGameLog(BaseTeam):
         __tablename__ = tablename
         __table_args__ = {'extend_existing': True}
-        # Column linking to the team's info (foreign key)
         team_abbr = Column(String(3), ForeignKey('team_info.team_abbr'), nullable=False)
-        # Game identification columns (composite primary key)
         season = Column(Integer, primary_key=True)
         week = Column(Integer, primary_key=True)
         season_type = Column(String(10), primary_key=True)
         opponent_team = Column(String(3), primary_key=True)
-        # JSON fields for game statistics
         offensive_stats = Column(JSON, nullable=True)
         defensive_stats = Column(JSON, nullable=True)
         special_teams = Column(JSON, nullable=True)
         
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f"<TeamGameLog(team_abbr={self.team_abbr}, season={self.season}, week={self.week})>"
     
     return TeamGameLog

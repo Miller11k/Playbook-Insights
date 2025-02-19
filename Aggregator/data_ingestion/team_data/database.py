@@ -5,10 +5,11 @@ Handles the initialization of the team_data database engine and session creation
 
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.engine import Engine
 from .models import BaseTeam
 
-def initialize_team_database(db_url=None):
+def initialize_team_database(db_url: str = None) -> Engine:
     """
     Initializes the team_data database engine and creates all tables if not already present.
     
@@ -29,7 +30,7 @@ def initialize_team_database(db_url=None):
     BaseTeam.metadata.create_all(engine)
     return engine
 
-def get_team_session(engine):
+def get_team_session(engine: Engine) -> Session:
     """
     Creates and returns a new SQLAlchemy session for the team_data database.
     
@@ -39,5 +40,5 @@ def get_team_session(engine):
     Returns:
         session: A new SQLAlchemy session.
     """
-    Session = sessionmaker(bind=engine)
-    return Session()
+    SessionLocal = sessionmaker(bind=engine)
+    return SessionLocal()

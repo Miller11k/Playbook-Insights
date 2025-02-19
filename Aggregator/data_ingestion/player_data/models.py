@@ -20,10 +20,10 @@ class PlayerBasicInfo(BasePlayer):
     id = Column(String(50), primary_key=True)
     info = Column(JSON, nullable=False)
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<PlayerBasicInfo(id={self.id})>"
 
-def create_player_game_log_model(player_id):
+def create_player_game_log_model(player_id: str):
     """
     Dynamically creates an ORM model class for a player's game log table.
     
@@ -39,14 +39,11 @@ def create_player_game_log_model(player_id):
     
     class PlayerGameLog(BasePlayer):
         __tablename__ = tablename
-        # Column linking to the player's basic info (foreign key)
         player_id = Column(String(50), nullable=False)
-        # Game identification columns (composite primary key)
         season = Column(Integer, primary_key=True)
         week = Column(Integer, primary_key=True)
         season_type = Column(String(10), primary_key=True)
         opponent_team = Column(String(3), primary_key=True)
-        # JSON fields containing the various game stats
         basic_info = Column(JSON, nullable=False)
         passing_stats = Column(JSON, nullable=True)
         rushing_stats = Column(JSON, nullable=True)
@@ -57,7 +54,7 @@ def create_player_game_log_model(player_id):
             ForeignKeyConstraint(['player_id'], ['player_basic_info.id']),
         )
         
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f"<PlayerGameLog(player_id={self.player_id}, season={self.season}, week={self.week})>"
     
     return PlayerGameLog

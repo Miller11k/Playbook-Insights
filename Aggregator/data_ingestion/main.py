@@ -6,22 +6,21 @@ from player_data.database import initialize_player_database
 from player_data.ingestion import ingest_player_data
 from team_data.database import initialize_team_database
 from team_data.ingestion import ingest_team_data
+from datetime import datetime
 
-def main():
+def main() -> None:
     """
     Main function to initialize databases and ingest NFL data.
     """
     try:
-        # Initialize the player_data database
         player_engine = initialize_player_database()
         print("[DEBUG] Initialized player_data database.")
         
-        # Initialize the team_data database
         team_engine = initialize_team_database()
         print("[DEBUG] Initialized team_data database.")
         
-        # Ingest player and team data using specified years
-        years = list(range(2000, 2025))
+        current_year = datetime.now().year
+        years = list(range(2000, current_year))
         ingest_player_data(years=years, engine=player_engine)
         ingest_team_data(years=years, engine=team_engine)
         
