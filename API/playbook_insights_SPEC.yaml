@@ -1,0 +1,338 @@
+openapi: 3.0.3
+info:
+  title: Playbook Insights API
+  description: "API that allows NFL data from the Playbook Insights Databases to be retrieved, filtered, modified, and deleted."
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/purdueuniversity/49595O/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: https://example.com/api
+paths:
+  /status:
+    get:
+      summary: Get API status
+      description: Returns an HTML page indicating that the API is running.
+      operationId: getStatus
+      responses:
+        "200":
+          description: HTML response indicating the API is operational.
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <!DOCTYPE html><html lang='en'><head><title>API Status</title></head><body><h1>API IS UP</h1><p>Playbook Insights is running smoothly 🚀</p></body></html>
+  /routes:
+    get:
+      summary: Get available routes
+      description: Returns a list of all available API routes and their supported methods.
+      operationId: getRoutes
+      responses:
+        "200":
+          description: JSON object listing available routes and their methods.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+  /defense/performance:
+    get:
+      summary: Get defensive performance
+      description: Retrieve defensive stats against a specific position over X games.
+      operationId: getDefensePerformance
+      parameters:
+      - name: team_id
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: position
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: games
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Defensive performance data returned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+  /players:
+    get:
+      summary: Get player statistics
+      operationId: getPlayers
+      parameters:
+      - name: player_id
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: season
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: week
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: team
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: position
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Player statistics returned successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    put:
+      summary: Update player statistics
+      operationId: updatePlayer
+      parameters:
+      - name: player_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: Player updated successfully.
+    post:
+      summary: Add new player statistics
+      operationId: addPlayer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "201":
+          description: Player added successfully.
+    delete:
+      summary: Delete a player entry
+      operationId: deletePlayer
+      parameters:
+      - name: player_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Player deleted successfully.
+  /teams:
+    get:
+      summary: Get team statistics
+      operationId: getTeams
+      parameters:
+      - name: team_id
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: season
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Team statistics returned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+    put:
+      summary: Update team statistics
+      operationId: updateTeam
+      parameters:
+      - name: team_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: Team updated successfully.
+    post:
+      summary: Add new team statistics
+      operationId: addTeam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "201":
+          description: Team added successfully.
+    delete:
+      summary: Delete a team entry
+      operationId: deleteTeam
+      parameters:
+      - name: team_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Team deleted successfully.
+  /games:
+    get:
+      summary: Get game statistics
+      operationId: getGameStats
+      parameters:
+      - name: season
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: week
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: team
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: opponent
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Game statistics returned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+    put:
+      summary: Update game record
+      operationId: updateGame
+      parameters:
+      - name: game_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: Game updated successfully.
+    post:
+      summary: Add new game record
+      operationId: addGame
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "201":
+          description: Game added successfully.
+    delete:
+      summary: Delete a game record
+      operationId: deleteGame
+      parameters:
+      - name: game_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Game deleted successfully.
+components:
+  schemas:
+    inline_response_200:
+      type: object
+      properties:
+        routes:
+          type: array
+          items:
+            type: object
+            properties:
+              route:
+                type: string
+              methods:
+                type: array
+                items:
+                  type: string
