@@ -23,10 +23,9 @@ def main() -> None:
 
         print("[DEBUG] Initialized team_data database.")
 
-        # Check if databases are already populated
         if is_player_database_populated(player_session) or is_team_database_populated(team_session):
             print("[ERROR] Database is already populated.")
-            return  # Stop execution
+            return 
         
         current_year = datetime.now().year
         years = list(range(2000, current_year))
