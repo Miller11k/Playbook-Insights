@@ -30,8 +30,8 @@ def ingest_team_info(session: Session, teams_df: pd.DataFrame) -> None:
         team_abbr = row.get('team_abbr')
         team_data = {
             "team_name": row.get('team_name'),
-            "team_color": row.get('team_color'),
-            "team_color2": row.get('team_color2'),
+            "primary_color": row.get('team_color'),
+            "secondary_color": row.get('team_color2'),
             "team_logo": row.get('team_logo_wikipedia') or row.get('team_logo')
         }
         records.append({
@@ -202,12 +202,6 @@ def aggregate_team_game_logs(session: Session, game_logs_df: pd.DataFrame,
     """
     Aggregates player-level game logs into team-level records, computes game results by merging schedule data,
     and inserts the records into dynamically created game log tables.
-
-    Args:
-        session (Session): SQLAlchemy session for the team_data database.
-        game_logs_df (pd.DataFrame): DataFrame containing game logs.
-        schedules_df (pd.DataFrame): DataFrame containing schedule information.
-        engine (Engine): SQLAlchemy engine for database operations.
     """
     # Aggregate offensive and defensive statistics, then merge.
     off_df = aggregate_offensive_stats(game_logs_df)
@@ -242,7 +236,6 @@ def aggregate_team_game_logs(session: Session, game_logs_df: pd.DataFrame,
         wins = 0
         losses = 0
         ties = 0
-
 
         for _, row in group.iterrows():
             # Compute game result and update the cumulative season record.
@@ -282,6 +275,53 @@ def aggregate_team_game_logs(session: Session, game_logs_df: pd.DataFrame,
                     "special_teams_tds": int(row.get('special_teams_tds', 0))
                 },
             }
+
+            # Filter raw player-level logs for this game.
+            mask = (
+                (game_logs_df['season'] == row['season']) &
+                (game_logs_df['week'] == row['week']) &
+                (game_logs_df['season_type'] == row['season_type']) &
+                (game_logs_df['opponent_team'] == row['opponent_team']) &
+                (game_logs_df['recent_team'] == team_abbr)
+            )
+            game_players = game_logs_df[mask]
+
+            # Extract passing stats (e.g., players with any passing contributions)
+            passing_players = game_players[
+                (game_players['completions'] > 0) |
+                (game_players['attempts'] > 0) |
+                (game_players['passing_yards'] > 0)
+            ]
+            player_passing_stats = passing_players[[
+                'player_id', 'player_name', 'completions', 'attempts', 'passing_yards',
+                'passing_tds', 'interceptions', 'sacks', 'passing_air_yards',
+                'passing_yards_after_catch', 'passing_first_downs', 'passing_2pt_conversions'
+            ]].to_dict(orient='records')
+
+            # Extract rushing stats 
+            rushing_players = game_players[
+                (game_players['carries'] > 0) |
+                (game_players['rushing_yards'] != 0)
+            ]
+            player_rushing_stats = rushing_players[[
+                'player_id', 'carries', 'rushing_yards', 'rushing_tds', 'rushing_first_downs', 'rushing_2pt_conversions'
+            ]].to_dict(orient='records')
+
+            # Extract receiving stats 
+            receiving_players = game_players[
+                (game_players['receptions'] > 0) |
+                (game_players['receiving_yards'] > 0)
+            ]
+            player_recieving_stats = receiving_players[[
+                'player_id', 'receptions', 'targets', 'receiving_yards',
+                'receiving_tds', 'receiving_yards_after_catch', 'receiving_first_downs', 'receiving_2pt_conversions'
+            ]].to_dict(orient='records')
+
+            # Add new columns to the record.
+            record["player_passing_stats"] = player_passing_stats
+            record["player_recieving_stats"] = player_recieving_stats
+            record["player_rushing_stats"] = player_rushing_stats
+
             records.append(record)
 
         session.bulk_insert_mappings(GameLogModel, records)
@@ -310,5 +350,5 @@ def ingest_team_data(years: list = [2022, 2023, 2024], engine: Engine = None) ->
 
     session = get_team_session(engine)
 
-    ingest_team_info(session, teams_df)
+    # ingest_team_info(session, teams_df)
     aggregate_team_game_logs(session, game_logs_df, schedules_df, engine)

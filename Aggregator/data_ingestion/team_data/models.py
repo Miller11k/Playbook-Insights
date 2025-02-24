@@ -53,6 +53,9 @@ def create_team_game_log_model(team_abbr: str):
         'offensive_stats': Column(JSON, nullable=True),
         'defensive_stats': Column(JSON, nullable=True),
         'special_teams': Column(JSON, nullable=True),
+        'player_passing_stats': Column(JSON, nullable=True),
+        'player_recieving_stats': Column(JSON, nullable=True),
+        'player_rushing_stats': Column(JSON, nullable=True),
         '__repr__': lambda self: f"<TeamGameLog(team_abbr={self.team_abbr}, season={self.season}, week={self.week})>",
     }
     
