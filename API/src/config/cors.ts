@@ -31,7 +31,7 @@ const corsConfig = cors({
 });
 
 const rateLimitValue = parseInt(process.env.RATE_LIMIT || '100', 10);
-console.log(`Rate limiting set to ${rateLimitValue.toLocaleString()} requests per 15 minutes.`);
+console.log(`Rate limiting set to ${rateLimitValue.toLocaleString()} requests per 15 minutes.\n`);
 
 
 /**

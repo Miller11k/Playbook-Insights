@@ -1,52 +1,23 @@
 /**
- * Logs when a specific API route is hit, displaying the method and endpoint.
- * Ensures method is in uppercase and endpoint starts with a forward slash.
+ * Formats a given player ID to match the expected format (XX-XXXXXXX).
  *
- * @param {string} method - The HTTP method used for the request (e.g., GET, POST, PUT, DELETE).
- * @param {string} endpoint - The API endpoint being accessed.
- * @returns {void} This function does not return a value.
+ * @param {string} playerID - The player ID to format.
+ * @returns {string | null} - The formatted player ID if successful, otherwise `null` if formatting is not possible.
  */
-export function printRouteHit(method: string, endpoint: string): void {
-    // Convert method to uppercase to standardize format
-    method = method.toUpperCase();
-
-    // Ensure endpoint starts with a leading slash for consistency
-    if (!endpoint.startsWith("/")) {
-        endpoint = `/${endpoint}`;
+export function formatPlayerID(playerID: string): string | null {
+    if (!playerID) {
+        return null;
     }
 
-    // Remove trailing slash if present
-    if (endpoint.endsWith("/")) {
-        endpoint = endpoint.slice(0, -1);
-    }
+    // Remove all non-digit characters
+    let digitsOnly = playerID.replace(/\D/g, "");
 
-    // If the route is "/", it should be displayed as "/status" (the root route)
-    if (endpoint === "" || endpoint === "/") {
-        endpoint = "/status";
-    }
+    // Ensure we have at least 9 digits by padding with leading zeros
+    digitsOnly = digitsOnly.padStart(9, "0");
 
-    console.log('*-------------------------------------------*');
+    // Reconstruct the player ID in the expected format: XX-XXXXXXX
+    const formattedID = digitsOnly.slice(0, 2) + "-" + digitsOnly.slice(2);
 
-    // Log the appropriate message based on the HTTP method
-    switch (method) {
-        case "GET":
-            console.log(`GET ${endpoint} endpoint hit`);
-            break;
-        case "POST":
-            console.log(`POST ${endpoint} endpoint hit`);
-            break;
-        case "PUT":
-            console.log(`PUT ${endpoint} endpoint hit`);
-            break;
-        case "DELETE":
-            console.log(`DELETE ${endpoint} endpoint hit`);
-            break;
-        default:
-            console.log(`Unknown ${endpoint} endpoint hit`);
-            break;
-    }
-
-    console.log('*-------------------------------------------*');
-
-    return;
+    // Validate that the formatted ID adheres to the required format
+    return /^\d{2}-\d{7}$/.test(formattedID) ? formattedID : null;
 }

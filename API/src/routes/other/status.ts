@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express';
-import { printRouteHit } from '../../helpers/formatHelper';
+import { printRouteHit } from '../../helpers/routePrintHelper.js';
 
 // Initialize the router
 const router = Router();
