@@ -24,7 +24,7 @@
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/jszip": "^3.4.1",
-    "@types/node": "^22.5.1",
+    "@types/node": "^22.13.5",
     "@types/pg": "^8.11.10",
     "@types/semver": "^7.5.8",
     "@types/supertest": "^6.0.2",
@@ -35,7 +35,7 @@
     "jest": "^29.7.0",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.689.0",
