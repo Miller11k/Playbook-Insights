@@ -76,7 +76,7 @@ router.use("/game-results", getGameResults);
 
 router.use("/passing-stats", getTeamPassingStats);
 router.use("/rushing-stats", getTeamRushingStats);
-router.use("/recieving-stats", getTeamRecievingStats);
+router.use("/receiving-stats", getTeamRecievingStats);
 router.use("/team-record", getTeamRecord);
 router.use("/team-roster", getTeamRoster);
 

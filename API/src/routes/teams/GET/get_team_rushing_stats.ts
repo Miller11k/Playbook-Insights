@@ -30,7 +30,7 @@ router.get('/', async (req: Request, res: Response) => {
       return;
     }
 
-    const tableName = `"${teamID}_game_logs"`;
+    const tableName = `${teamID}_game_logs`;
     console.log(`Using table: ${tableName}`);
 
     const filters: string[] = [];
@@ -74,7 +74,7 @@ router.get('/', async (req: Request, res: Response) => {
                'rushing_tds', offensive_stats->>'rushing_tds'
              ) AS aggregated_rushing_stats,
              player_rushing_stats
-      FROM ${tableName}
+      FROM "${tableName}"
       ${filters.length ? "WHERE " + filters.join(" AND ") : ""};
     `;
     console.log("Team Query:", teamQuery);

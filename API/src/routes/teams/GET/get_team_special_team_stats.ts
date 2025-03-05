@@ -83,7 +83,7 @@ router.get('/', async (req: Request, res: Response) => {
 
         const query = `
             SELECT special_teams 
-            FROM ${tableName} 
+            FROM "${tableName}" 
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""};
         `;
 

@@ -37,7 +37,7 @@ router.get('/', async (req: Request, res: Response) => {
         }
 
         // Determine the table name based on the team ID
-        const tableName = `"${teamID}_game_logs"`;
+        const tableName = `${teamID}_game_logs`;
 
         // Build an array for SQL filters and corresponding values
         const filters: string[] = [];
@@ -79,7 +79,7 @@ router.get('/', async (req: Request, res: Response) => {
         // Construct the SQL query to select the game_result column from the game logs table
         const query = `
             SELECT game_result 
-            FROM ${tableName} 
+            FROM "${tableName}" 
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""};
         `;
 

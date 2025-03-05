@@ -84,8 +84,8 @@ router.get('/', async (req: Request, res: Response) => {
 
         // Set the query to fetch the game results
         const query = `
-            SELECT game_results 
-            FROM ${tableName} 
+            SELECT game_result
+            FROM "${tableName}" 
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""};
         `;
 
@@ -97,7 +97,7 @@ router.get('/', async (req: Request, res: Response) => {
             return;
         }
 
-        res.status(200).json(result.rows.map(row => row.game_results));
+        res.status(200).json(result.rows.map(row => row.game_result));
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
