@@ -27,6 +27,7 @@ interface ChartProps {
 }
 
 const Chart: React.FC<ChartProps> = ({ data }) => {
+  // Assign colors to each dataset
   const datasets = data.datasets.map((dataset: any, index: number) => {
     const color = COLORS[index % COLORS.length] || 'rgba(0, 0, 0, 0.7)';
     return {
@@ -37,15 +38,39 @@ const Chart: React.FC<ChartProps> = ({ data }) => {
     };
   });
 
+  // Configure chart options (white text, semi-transparent grid lines)
   const options = {
     responsive: true,
     plugins: {
-      legend: { position: 'top' as const },
-      title: { display: true, text: 'Stats Chart' },
+      legend: {
+        position: 'top' as const,
+        labels: {
+          color: '#fff', // Legend text color
+        },
+      },
+      title: {
+        display: true,
+        text: 'Stats Chart',
+        color: '#fff', // Title text color
+      },
     },
     scales: {
+      x: {
+        ticks: {
+          color: '#fff', // X-axis label color
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.2)', // X-axis grid line color
+        },
+      },
       y: {
         beginAtZero: true,
+        ticks: {
+          color: '#fff', // Y-axis label color
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.2)', // Y-axis grid line color
+        },
       },
     },
   };

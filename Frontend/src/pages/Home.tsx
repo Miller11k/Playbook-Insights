@@ -7,7 +7,7 @@ const Home: React.FC = () => {
     <div className="home-container">
       <h1 className="home-title">Welcome to Playbook Insights</h1>
       <p className="home-subtitle">
-        Dive deep into the stats. Explore team and player performance with interactive charts.
+        Turning Sports Data into Informative Insights
       </p>
     </div>
   );
