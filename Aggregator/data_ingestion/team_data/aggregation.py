@@ -1,8 +1,3 @@
-"""
-Module: team_data.aggregation
-Provides functions to aggregate player-level game logs into team-level game logs.
-"""
-
 import pandas as pd
 
 def aggregate_offensive_stats(df: pd.DataFrame) -> pd.DataFrame:

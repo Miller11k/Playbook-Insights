@@ -1,8 +1,3 @@
-"""
-Module: player_data.crud
-Provides CRUD functions for the PlayerBasicInfo model.
-"""
-
 from sqlalchemy.orm import Session
 from .models import PlayerBasicInfo
 from typing import Optional, Dict, Any

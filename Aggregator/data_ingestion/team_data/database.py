@@ -1,8 +1,3 @@
-"""
-Module: team_data.database
-Handles the initialization of the team_data database engine and session creation.
-"""
-
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session

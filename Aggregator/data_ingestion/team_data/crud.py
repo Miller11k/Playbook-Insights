@@ -1,8 +1,3 @@
-"""
-Module: team_data.crud
-Provides CRUD functions for the TeamInfo model.
-"""
-
 from sqlalchemy.orm import Session
 from .models import TeamInfo
 from typing import Optional, Dict, Any
