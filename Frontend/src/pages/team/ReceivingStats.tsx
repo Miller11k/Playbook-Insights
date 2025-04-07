@@ -1,7 +1,8 @@
-// src/pages/team/ReceivingStats.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import Chart from '../../components/charts/Chart';
+import './TeamStats.css';  // Page-specific styles (form, inputs, etc.)
+import '../StatsContainer.css'; // Common container for centering
 
 const TeamReceivingStats: React.FC = () => {
   const [teamCode, setTeamCode] = useState('');
@@ -9,6 +10,10 @@ const TeamReceivingStats: React.FC = () => {
   const [week, setWeek] = useState<number | ''>('');
   const [chartData, setChartData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Dropdown options for years and weeks
+  const years = Array.from({ length: 2024 - 1967 + 1 }, (_, i) => 1967 + i);
+  const weeks = Array.from({ length: 21 }, (_, i) => i + 1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +27,15 @@ const TeamReceivingStats: React.FC = () => {
         },
       });
       const data = response.data;
-      const labels = data.map((_: any, idx: number) => `Game ${idx + 1}`);
-      const receivingYards = data.map((item: any) =>
-        Number(item.aggregated_receiving_stats?.receiving_yards || 0)
+      // Filter out any null records
+      const filteredData = data.filter((item: any) => item !== null);
+      if (!filteredData.length) {
+        setError('No data found for the specified criteria.');
+        return;
+      }
+      const labels = filteredData.map((_: any, idx: number) => `Game ${idx + 1}`);
+      const receivingYards = filteredData.map((item: any) =>
+        Number(item.aggregated_receiving_stats?.receiving_yards) || 0
       );
 
       setChartData({
@@ -43,32 +54,49 @@ const TeamReceivingStats: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="stats-container">
       <h2>Team Receiving Stats</h2>
-      <form onSubmit={handleSubmit}>
+      <form className="team-stats-form" onSubmit={handleSubmit}>
         <label>
           Team Code:
-          <input type="text" value={teamCode} onChange={(e) => setTeamCode(e.target.value)} required />
+          <input
+            type="text"
+            value={teamCode}
+            onChange={(e) => setTeamCode(e.target.value)}
+            required
+          />
         </label>
         <label>
-          Season (Year):
-          <input
-            type="number"
+          Year:
+          <select
             value={season}
             onChange={(e) => setSeason(e.target.value ? Number(e.target.value) : '')}
-          />
+          >
+            <option value="">Select Year</option>
+            {years.map((yr) => (
+              <option key={yr} value={yr}>
+                {yr}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           Week:
-          <input
-            type="number"
+          <select
             value={week}
             onChange={(e) => setWeek(e.target.value ? Number(e.target.value) : '')}
-          />
+          >
+            <option value="">Select Week</option>
+            {weeks.map((wk) => (
+              <option key={wk} value={wk}>
+                {wk}
+              </option>
+            ))}
+          </select>
         </label>
         <button type="submit">Get Stats</button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
       {chartData && <Chart data={chartData} />}
     </div>
   );

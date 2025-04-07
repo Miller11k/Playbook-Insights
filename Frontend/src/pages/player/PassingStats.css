@@ -1,45 +1,117 @@
+/* 
+  This container fills the screen (minus navbar), 
+  centers everything horizontally & vertically.
+*/
 .player-passing-stats-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 6rem auto 2rem auto; 
-    max-width: 1200px;
-    padding: 0 1rem;
-    text-align: center;
-  }
-  
-  /* Spacing below the form */
-  .player-passing-stats-form {
-    margin-bottom: 2rem;
-  }
-  
-  /* The chart container */
-  .player-passing-stats-chart {
-    width: 100%;   /* Let it scale to the container width */
-    max-width: 900px;
-    min-height: 500px;
-    margin: 0 auto;
-    /* 
-    subtle background behind the chart:
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 1rem;
-    */
-  }
-  
-  /* Form elements styling */
-  .player-passing-stats-form label,
-  .player-passing-stats-form button {
-    margin: 0 0.5rem 0.5rem 0;
-    font-size: 1rem;
-  }
-  
-  /* Inputs spacing and border */
-  .player-passing-stats-form input {
-    margin-left: 0.25rem;
-    margin-right: 1rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #aaa;
-  }
-  
+  position: relative;
+  top: 6rem; /* match your navbar height */
+  width: 100%;
+  height: calc(100vh - 6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center; 
+  box-sizing: border-box;
+}
+
+/* Space below the heading, if needed */
+.player-passing-stats-container h2 {
+  margin-bottom: 1rem;
+}
+
+/* Center the form elements in one row or wrap as needed */
+.player-passing-stats-form {
+  display: flex;
+  flex-wrap: wrap; 
+  align-items: center;
+  justify-content: center;
+  gap: 1rem; /* space between items */
+  margin-bottom: 1rem; 
+}
+
+/* If you want a consistent size for inputs/selects */
+.player-passing-stats-form input,
+.player-passing-stats-form select {
+  min-width: 140px;
+}
+
+/* Error message */
+.error-message {
+  color: red;
+  margin-bottom: 1rem;
+}
+
+/* 
+  Chart container: ensure it doesn't push content off screen 
+  and stays centered. 
+*/
+.player-passing-stats-chart {
+  width: 800px; /* or any fixed width you prefer */
+  max-width: 90%; /* let it shrink on smaller screens */
+  margin: 0 auto; /* center horizontally if there's leftover space */
+}
+
+.player-passing-stats-container {
+  position: relative;
+  top: 6rem; /* Adjust to your navbar height */
+  width: 100%;
+  height: calc(100vh - 6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.player-passing-stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.player-passing-stats-form label {
+  font-size: 1rem;
+}
+
+.player-passing-stats-form input {
+  min-width: 140px;
+}
+
+/* Updated dropdownstyles */
+.player-passing-stats-form select {
+  color: #000; /* Always black text */
+  background-color: #fff; /* White background */
+  border: 1px solid #aaa;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+/* Option elements styling */
+.player-passing-stats-form select option {
+  color: #000;
+  background-color: #fff;
+}
+
+/* Attempt to style hovered */
+.player-passing-stats-form select option:hover {
+  background-color: lightgray;
+}
+
+/* Center the chart container */
+.player-passing-stats-chart {
+  width: 800px;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+/* Error message styling */
+.error-message {
+  color: red;
+  margin-bottom: 1rem;
+}

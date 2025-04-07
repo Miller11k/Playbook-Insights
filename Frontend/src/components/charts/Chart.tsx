@@ -1,4 +1,3 @@
-// src/components/charts/Chart.tsx
 import React from 'react';
 import {
   Chart as ChartJS,

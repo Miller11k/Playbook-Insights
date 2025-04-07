@@ -1,50 +1,42 @@
 .home-container {
-    width: 100%;
-    min-height: calc(100vh - 6rem); 
-    margin-top: 6rem;
-    
-    /* Center content both horizontally and vertically */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    
-    /* Padding for mobile and a smooth layout */
-    padding: 0 1rem;
-    box-sizing: border-box;
-    
-    /* Fade-in animation */
-    animation: fadeIn 1s ease forwards;
+  position: fixed;           /* Use fixed positioning */
+  top: 6rem;                 /* Start right below the navbar */
+  left: 0;
+  right: 0;
+  bottom: 0;                 /* Fill until the bottom of the viewport */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* Vertical centering */
+  align-items: center;       /* Horizontal centering */
+  text-align: center;        /* Center text inside child elements */
+  padding: 0 1rem;           /* Some side padding for mobile */
+  box-sizing: border-box;
+  animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .home-title {
-    font-size: 4rem; 
-    margin-bottom: 1rem;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 
-      0 0 10px rgba(0, 255, 209, 0.8),  /* Neon glow effect */
-      0 0 20px rgba(0, 255, 209, 0.6);
-  }
-  
-  .home-subtitle {
-    font-size: 1.5rem;
-    max-width: 800px;
-    line-height: 1.8;
-    margin-bottom: 2rem;
-    color: #f0f0f0;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  }
-  
+}
+
+.home-title {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.home-subtitle {
+  font-size: 1.5rem;
+  max-width: 800px;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  color: #f0f0f0;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
