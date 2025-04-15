@@ -1,0 +1,97 @@
+/* === TeamStats.css / PlayerStats.css === */
+
+/* Form specific layout (Keep as is) */
+.stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end; /* Keep alignment to the bottom */
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Adjust label styling (Keep as is) */
+.stats-form > label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0;
+}
+
+/* Add margin-top to inputs/selects within direct labels (Keep as is) */
+.stats-form > label input[type="text"],
+.stats-form > label input[type="number"],
+.stats-form > label select {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+/* --- CHANGES START HERE --- */
+
+/* Style for the player search input container */
+.player-search-input-container {
+  position: relative; /* Required for absolute positioning of children */
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 200px;
+  max-width: 350px;
+  /* Add padding at the bottom to reserve space for the absolute positioned status */
+  /* Adjust calculation based on .search-status height and desired gap */
+  padding-bottom: calc(1.2em + 8px); /* e.g., 1.2em height + 8px gap */
+}
+
+/* Label inside search container (Keep as is) */
+.player-search-input-container > label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0;
+}
+
+/* Input group within search (Keep as is) */
+.player-search-input-container .input-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.player-search-input-container .input-group input[type="text"] {
+    flex-grow: 1;
+    margin-right: 5px;
+    margin-top: 0;
+}
+
+/* Position Search status absolutely */
+.search-status {
+    position: absolute; /* Take out of normal flow */
+    bottom: 0;        /* Position at the bottom of the container */
+    left: 10px;       /* Give it some left offset */
+    width: calc(100% - 20px); /* Adjust width if needed */
+    font-size: 0.8rem;
+    height: 1.2em;    /* Define height for padding calculation */
+    /* Remove margin-top, positioning is handled by 'bottom' */
+    margin-top: 0;
+    /* Ensure text doesn't wrap unexpectedly */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- END CHANGES --- */
+
+/* Style the submit button (Keep as is) */
+.stats-form button.submit-button {
+   height: calc( (0.6rem * 2) + 1em + 2px);
+   padding-top: 0.6rem;
+   padding-bottom: 0.6rem;
+   margin-bottom: 0;
+}

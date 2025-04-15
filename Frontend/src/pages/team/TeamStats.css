@@ -1,78 +1,108 @@
-/* Container fills the viewport below the fixed navbar and centers content */
-.team-stats-container {
-    position: relative;
-    top: 6rem; /* Adjust this if your navbar height changes */
-    width: 100%;
-    height: calc(100vh - 6rem);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-    padding: 1rem;
-  }
-  
-  /* Heading styling */
-  .team-stats-container h2 {
-    margin-bottom: 1rem;
-    font-size: 2.5rem;
-    color: #fff;
-  }
-  
-  /* Form container for team stats */
-  .team-stats-form {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  /* Form labels */
-  .team-stats-form label {
-    font-size: 1rem;
-    color: #fff;
-  }
-  
-  /* Inputs and selects styling */
-  .team-stats-form input,
-  .team-stats-form select {
-    min-width: 140px;
-    padding: 0.5rem;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-  
-  /* Dropdown styling: black text, white background */
-  .team-stats-form select {
-    color: #000;
-    background-color: #fff;
-  }
-  
-  /* Option elements styling */
-  .team-stats-form select option {
-    color: #000;
-    background-color: #fff;
-  }
-  
-  /* Hover styling for options */
-  .team-stats-form select option:hover {
-    background-color: lightgray;
-  }
-  
-  /* Chart container: centers chart horizontally */
-  .team-stats-chart {
-    width: 800px;
-    max-width: 90%;
-    margin: 0 auto;
-  }
-  
-  /* Error message styling */
-  .error-message {
-    color: red;
-    margin-bottom: 1rem;
-  }
-  
+/* src/pages/team/TeamStats.css */
+
+/* Form layout - Ensure these specific rules are present */
+.stats-container .stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end; /* Align items to the bottom */
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Direct Label children of the form */
+.stats-container .stats-form > label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0; /* Remove margin for alignment */
+}
+
+/* Inputs/Selects within direct labels */
+.stats-container .stats-form > label input[type="text"],
+.stats-container .stats-form > label input[type="number"],
+.stats-container .stats-form > label select {
+  margin-top: 0.5rem; /* Space between label text and input */
+  width: 100%;
+}
+
+/* Search Input Container */
+.stats-container .stats-form .player-search-input-container {
+  position: relative; /* Needed for absolute child */
+  margin-bottom: 0;   /* Remove margin for alignment */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 200px;
+  max-width: 350px;
+  /* Reserve space for the status message */
+  padding-bottom: calc(1.2em + 8px); /* Height of status + gap */
+}
+
+/* Label within Search Container */
+.stats-container .stats-form .player-search-input-container > label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0;
+}
+
+/* Input Group within Search Container */
+.stats-container .stats-form .player-search-input-container .input-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.5rem; /* Space between label and input group */
+}
+
+/* Text Input within Input Group */
+.stats-container .stats-form .player-search-input-container .input-group input[type="text"] {
+  flex-grow: 1;
+  margin-right: 5px;
+  margin-top: 0; /* Reset margin-top */
+}
+
+/* Search Status - Absolute Positioned */
+.stats-container .stats-form .player-search-input-container .search-status {
+  position: absolute; /* Take out of flow */
+  bottom: 0;          /* Position at bottom of reserved space */
+  left: 10px;         /* Indent slightly */
+  width: calc(100% - 20px); /* Control width */
+  font-size: 0.8rem;
+  height: 1.2em;      /* Must match padding calculation */
+  margin-top: 0;      /* Not needed */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-muted); /* Default color */
+}
+.stats-container .stats-form .player-search-input-container .search-status.searching { color: var(--text-muted); }
+.stats-container .stats-form .player-search-input-container .search-status.error { color: #ff6b6b; }
+
+
+/* Submit Button */
+.stats-container .stats-form button.submit-button {
+  height: calc( (0.6rem * 2) + 1em + 2px); /* Match input height */
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0; /* Remove margin for alignment */
+}
+
+/* === You might need to add styles from global.css PlayerStats section === */
+/* Add rules for .chart-container, etc., IF they are not covered */
+/* adequately by global.css and are specific to TeamStats */
+.chart-container {
+  width: 100%;
+  max-width: 850px;
+  margin: 1rem auto 2rem auto;
+  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}

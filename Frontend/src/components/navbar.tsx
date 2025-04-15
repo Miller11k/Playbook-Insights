@@ -1,6 +1,7 @@
+// src/components/navbar.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Navbar.css';
+import './Navbar.css'; // Assuming this CSS file exists and styles the navbar
 
 const Navbar: React.FC = () => {
   return (
@@ -13,23 +14,25 @@ const Navbar: React.FC = () => {
           <li>
             <Link to="/">Home</Link>
           </li>
+
+          {/* Team Stats - Changed to Direct Link */}
           <li>
-            <Link to="/about">About</Link>
+            {/* Link to the primary/passing stats page, or a general /team-stats page if you create one */}
+            <Link to="/team-stats/passing">Team Stats</Link>
           </li>
-          <li className="dropdown">
-            <span>Team Stats</span>
-            <ul className="dropdown-menu">
-              <li><Link to="/team-stats/passing">Passing Stats</Link></li>
-              <li><Link to="/team-stats/receiving">Receiving Stats</Link></li>
-              <li><Link to="/team-stats/rushing">Rushing Stats</Link></li>
-            </ul>
+
+          {/* Player Stats - Changed to Direct Link */}
+          <li>
+             {/* Link to the primary/passing stats page, or a general /player-stats page if you create one */}
+            <Link to="/player-stats/passing">Player Stats</Link>
           </li>
+
+          {/* Defensive Insights Dropdown - Kept as dropdown */}
           <li className="dropdown">
-            <span>Player Stats</span>
+            <span>Defensive Insights</span>
             <ul className="dropdown-menu">
-              <li><Link to="/player-stats/passing">Passing Stats</Link></li>
-              <li><Link to="/player-stats/receiving">Receiving Stats</Link></li>
-              <li><Link to="/player-stats/rushing">Rushing Stats</Link></li>
+              <li><Link to="/defensive-stats/team">Team Stats</Link></li>
+              <li><Link to="/defensive-stats/ranking">Team Rankings</Link></li>
             </ul>
           </li>
         </ul>

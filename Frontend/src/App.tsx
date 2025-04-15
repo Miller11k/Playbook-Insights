@@ -1,31 +1,27 @@
 // src/App.tsx
 import React from 'react';
-import './global.css'; // Import the global styles
+import './global.css'; // Keep this
+// import './App.css'; // REMOVE THIS LINE IF PRESENT
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/navbar';
 import Home from './pages/Home';
-import TeamPassingStats from './pages/team/PassingStats';
-import TeamReceivingStats from './pages/team/ReceivingStats';
-import TeamRushingStats from './pages/team/RushingStats';
-import PlayerPassingStats from './pages/player/PassingStats';
-// import PlayerReceivingStats from './pages/player/ReceivingStats';
-// import PlayerRushingStats from './pages/player/RushingStats';
+import TeamPassingStats from './pages/team/TeamStats'; // Assuming this is correct component
+import PlayerPassingStats from './pages/player/PlayerStats';
+import DefensiveStats from './pages/team/DefensiveStats';
+import DefensiveStatsRanking from './pages/team/DefensiveStatsRanking';
 
 const App: React.FC = () => {
   return (
     <Router>
       <Navbar />
       <Routes>
+        {/* Routes remain the same */}
         <Route path="/" element={<Home />} />
-        {/* Team Stats */}
         <Route path="/team-stats/passing" element={<TeamPassingStats />} />
-        <Route path="/team-stats/receiving" element={<TeamReceivingStats />} />
-        <Route path="/team-stats/rushing" element={<TeamRushingStats />} />
-        {/* Player Stats */}
         <Route path="/player-stats/passing" element={<PlayerPassingStats />} />
-        {/* <Route path="/player-stats/receiving" element={<PlayerReceivingStats />} />
-        <Route path="/player-stats/rushing" element={<PlayerRushingStats />} /> */}
-        {/* About page can be added later */}
+        <Route path="/defensive-stats/team" element={<DefensiveStats />} />
+        <Route path="/defensive-stats/ranking" element={<DefensiveStatsRanking />} />
+        {/* Other commented-out routes */}
       </Routes>
     </Router>
   );
