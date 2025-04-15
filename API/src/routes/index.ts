@@ -10,7 +10,7 @@ import statusRoute from './other/status.js';
 import routesRoute from './other/routes.js';
 import testDBRoute from './other/test-db.js';
 
-import getInfoRoutes from './get.js';
+import getInfoRoutes from './get_info.js';
 
 
 // Create a router instance to group and manage related user routes

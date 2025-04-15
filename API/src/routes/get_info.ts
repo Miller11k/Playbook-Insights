@@ -43,6 +43,14 @@ router.get('/', async (req: Request, res: Response) => {
     const statsType = req.headers['x-stats-type'] ? req.headers['x-stats-type'].toString().toLowerCase() : ''; // Save the stats type ("passing", "rushing", etc.) to a variable
 
     if(!entityType || !statsType){
+        if(!entityType){
+            res.status(400).json({ error: "Missing required header: x-entity-type" });
+            return;
+        } else if(!statsType){
+            res.status(400).json({ error: "Missing required header: x-stats-type" });
+            return;
+        }
+        // If both headers are missing, return an error
         res.status(400).json({ error: "Missing required headers: x-entity-type and/or x-stats-type" });
             return;
     }
@@ -56,43 +64,42 @@ router.get('/', async (req: Request, res: Response) => {
     const validPlayerStats = ['extra', 'info', 'passing', 'receiving', 'rushing']
     const validTeamStats = ['results', 'defensive', 'info', 'offensive', 'passing', 'receiving', 'record', 'roster', 'rushing', 'special']
 
-    if (!validEntities.includes(entityType)) {
-        res.status(400).json({ error: "Invalid header values. Check x-entity-type." });
-        return;
-    }
-
     // Handle logic
-    if (entityType == 'player'){
-        // Handle player calls
-        switch(statsType){
-            case 'extra': return await getPlayerExtraData(req, res);
-            case 'info': return await getPlayerInfo(req, res);
-            case 'passing': return await getPlayerPassingStats(req, res);
-            case 'receiving': return await getPlayerReceivingStats(req, res);
-            case 'rushing': return await getPlayerRushingStats(req, res);
-            default:    // If the stats type is not valid, return an error
-                res.status(400).json({ error: "Invalid stats type for player." });
-                return;
-        }
-    }
+    switch (entityType) {
+        case 'player':
+            // Handle player calls
+            switch(statsType){
+                case 'extra': return await getPlayerExtraData(req, res);
+                case 'info': return await getPlayerInfo(req, res);
+                case 'passing': return await getPlayerPassingStats(req, res);
+                case 'receiving': return await getPlayerReceivingStats(req, res);
+                case 'rushing': return await getPlayerRushingStats(req, res);
+                default:    // If the stats type is not valid, return an error
+                    res.status(400).json({ error: "Invalid x-stats-type." });
+                    return;
+            }
 
-    if (entityType == 'team'){
-        // Handle team calls
-        switch(statsType){
-            case 'results': return await getGameResults(req, res);
-            case 'defensive': return await getTeamDefensiveStats(req, res);
-            case 'info': return await getTeamInfo(req, res);
-            case 'offensive': return await getTeamOffensiveStats(req, res);
-            case 'passing': return await getTeamPassingStats(req, res);
-            case 'receiving': return await getTeamReceivingStats(req, res);
-            case 'record': return await getTeamRecord(req, res);
-            case 'roster': return await getTeamRoster(req, res);
-            case 'rushing': return await getTeamRushingStats(req, res);
-            case 'special': return await getSpecialTeamsStats(req, res);
-            default:    // If the stats type is not valid, return an error
-                res.status(400).json({ error: "Invalid stats type for team." });
-                return;
-        }
+        case 'team':
+            // Handle team calls
+            switch(statsType){
+                case 'results': return await getGameResults(req, res);
+                case 'defensive': return await getTeamDefensiveStats(req, res);
+                case 'info': return await getTeamInfo(req, res);
+                case 'offensive': return await getTeamOffensiveStats(req, res);
+                case 'passing': return await getTeamPassingStats(req, res);
+                case 'receiving': return await getTeamReceivingStats(req, res);
+                case 'record': return await getTeamRecord(req, res);
+                case 'roster': return await getTeamRoster(req, res);
+                case 'rushing': return await getTeamRushingStats(req, res);
+                case 'special': return await getSpecialTeamsStats(req, res);
+                default:    // If the stats type is not valid, return an error
+                    res.status(400).json({ error: "Invalid stats type for team." });
+                    return;
+            }
+        default:
+            // If the entity type is not valid, return an error
+            res.status(400).json({ error: "Invalid x-entity-type." });
+            return;
     }
 });
 
