@@ -4,9 +4,6 @@ import { printRequestHeaders, printRequestParams, printRequestQuery, printRouteH
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { teamDBClient } from '../../../config/dbConfig.js';
 
-// Create a new router instance to define and group related routes
-const router = Router();
-
 /**
  * @route GET /offensive-stats
  * @description Retrieves offensive statistics for a given team.
@@ -21,7 +18,7 @@ const router = Router();
  * @returns {Object} 404 - Error if no matching records are found.
  * @returns {Object} 500 - Error if there is an issue with the database or server.
  */
-router.get('/', async (req: Request, res: Response) => {
+export async function getTeamOffensiveStats(req: Request, res: Response) {
     printRouteHit("GET", "/offensive-stats");
     printRequestParams(req.params);
     printRequestHeaders(req.headers);
@@ -100,6 +97,6 @@ router.get('/', async (req: Request, res: Response) => {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
+}
 
-export default router;
+export default getTeamOffensiveStats;
