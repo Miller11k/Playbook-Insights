@@ -1,97 +1,89 @@
-/* === TeamStats.css / PlayerStats.css === */
+/* === In your component's CSS (e.g., TeamStats.css or PlayerStats.css) === */
 
-/* Form specific layout (Keep as is) */
+/* Apply to the main form */
 .stats-form {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end; /* Keep alignment to the bottom */
+  align-items: flex-end; /* Align bottom edges of direct children */
   justify-content: center;
   gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  /* ... other form styles ... */
+  /* Ensure no residual padding/margin interferes */
   padding: 1.5rem;
-  background-color: var(--card-bg);
-  border-radius: 8px;
-  width: 100%;
-  max-width: 900px;
+  margin-bottom: 2.5rem;
 }
 
-/* Adjust label styling (Keep as is) */
+/* Target direct label children (for dropdowns/simple inputs) */
 .stats-form > label {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 0;
+  margin-bottom: 0; /* CRUCIAL for flex-end alignment */
+  /* ... other label styles ... */
+}
+/* Ensure inputs/selects inside direct labels have consistent spacing */
+.stats-form > label > input,
+.stats-form > label > select {
+  margin-top: 0.5rem; /* Space between label text and control */
 }
 
-/* Add margin-top to inputs/selects within direct labels (Keep as is) */
-.stats-form > label input[type="text"],
-.stats-form > label input[type="number"],
-.stats-form > label select {
-  margin-top: 0.5rem;
-  width: 100%;
-}
 
-/* --- CHANGES START HERE --- */
-
-/* Style for the player search input container */
-.player-search-input-container {
-  position: relative; /* Required for absolute positioning of children */
-  margin-bottom: 0;
+/* Target the container for the search input specifically */
+.stats-form .player-search-input-container {
+  position: relative;   /* Needed for positioning .search-status absolutely */
+  margin-bottom: 0;     /* CRUCIAL for flex-end alignment */
   display: flex;
   flex-direction: column;
+  /* Reserve space at the bottom for the absolutely positioned status */
+  /* Adjust calc based on .search-status height + desired gap */
+  padding-bottom: calc(1.2em + 8px);
+  /* Add other styles like flex-grow, width as needed */
   flex-grow: 1;
   min-width: 200px;
   max-width: 350px;
-  /* Add padding at the bottom to reserve space for the absolute positioned status */
-  /* Adjust calculation based on .search-status height and desired gap */
-  padding-bottom: calc(1.2em + 8px); /* e.g., 1.2em height + 8px gap */
 }
 
-/* Label inside search container (Keep as is) */
-.player-search-input-container > label {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 0;
+/* Label text inside the search container */
+.stats-form .player-search-input-container > label {
+   margin-bottom: 0; /* Consistent label styling */
+   /* Add other label styles if needed */
 }
 
-/* Input group within search (Keep as is) */
-.player-search-input-container .input-group {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    margin-top: 0.5rem;
+/* Input group (input + clear button) inside search container */
+.stats-form .player-search-input-container .input-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.5rem; /* Consistent space below label text */
+}
+.stats-form .player-search-input-container .input-group input {
+   flex-grow: 1;
+   margin-right: 5px; /* Space for clear button */
 }
 
-.player-search-input-container .input-group input[type="text"] {
-    flex-grow: 1;
-    margin-right: 5px;
-    margin-top: 0;
+/* The key fix: Position the search status absolutely */
+.stats-form .player-search-input-container .search-status {
+  position: absolute; /* Removes element from normal layout flow */
+  bottom: 0;        /* Positions it at the bottom of the reserved padding space */
+  left: 10px;       /* Give it some horizontal position */
+  width: calc(100% - 20px); /* Adjust width */
+  height: 1.2em;    /* Should match reserved space calculation */
+  font-size: 0.8rem; /* Match definition */
+  margin: 0;        /* Reset margins */
+  /* Optional: Add styling for visibility if needed */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.stats-form .player-search-input-container .search-status.searching { color: var(--text-muted); }
+.stats-form .player-search-input-container .search-status.error { color: #ff6b6b; }
 
-/* Position Search status absolutely */
-.search-status {
-    position: absolute; /* Take out of normal flow */
-    bottom: 0;        /* Position at the bottom of the container */
-    left: 10px;       /* Give it some left offset */
-    width: calc(100% - 20px); /* Adjust width if needed */
-    font-size: 0.8rem;
-    height: 1.2em;    /* Define height for padding calculation */
-    /* Remove margin-top, positioning is handled by 'bottom' */
-    margin-top: 0;
-    /* Ensure text doesn't wrap unexpectedly */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
-/* --- END CHANGES --- */
-
-/* Style the submit button (Keep as is) */
-.stats-form button.submit-button {
-   height: calc( (0.6rem * 2) + 1em + 2px);
-   padding-top: 0.6rem;
-   padding-bottom: 0.6rem;
-   margin-bottom: 0;
+/* Ensure submit button also aligns correctly */
+.stats-form .submit-button {
+  margin-bottom: 0; /* CRUCIAL for flex-end alignment */
+  /* Adjust height/padding to visually match input height if necessary */
+  height: calc( (0.6rem * 2) + 1em + 2px); /* Example */
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
 }

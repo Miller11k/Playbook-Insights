@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-// Assuming Chart component exists and accepts chart.js compatible data structure
+import React, { useState, useEffect, useCallback } from 'react';
+import axios, { AxiosError } from 'axios';
 import Chart from '../../components/charts/Chart';
-// Reusing existing CSS where applicable
+// Assuming TeamStats.css contains styles for the form AND search components
 import './TeamStats.css';
+// Import debounce
+import { debounce } from 'lodash';
 
-// Define the structure of the defensive stats object expected from the API
+// --- Interfaces ---
+// Interface for the defensive stats object expected from the API
 interface DefensiveStats {
   passing_yards_allowed?: number;
   rushing_yards_allowed?: number;
@@ -18,11 +20,18 @@ interface DefensiveStats {
   carries_allowed?: number;
   sacks?: number;
   interceptions?: number;
-  // Add other potential fields if necessary
-  [key: string]: number | undefined; // Allow string indexing
+  [key: string]: number | undefined;
 }
 
-// Define available defensive stats for selection
+// Interface for team search results (copied from TeamStats)
+interface TeamSearchResult { code: string; name: string; }
+
+// --- Constants ---
+// Copied from TeamStats - adjust if needed
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'; // Ensure this is correct
+console.log('DEF STATS Using API Base URL:', API_BASE_URL);
+
+// Define available defensive stats for selection (keep as is)
 const defensiveStatOptions: { value: keyof DefensiveStats; label: string }[] = [
   { value: 'passing_yards_allowed', label: 'Passing Yards Allowed' },
   { value: 'rushing_yards_allowed', label: 'Rushing Yards Allowed' },
@@ -35,53 +44,88 @@ const defensiveStatOptions: { value: keyof DefensiveStats; label: string }[] = [
   { value: 'wr_receptions_allowed', label: 'WR Receptions Allowed' },
   { value: 'rb_receptions_allowed', label: 'RB Receptions Allowed' },
   { value: 'carries_allowed', label: 'Carries Allowed' },
-  // Add more stats here if available in your data
 ];
 
+// --- Component ---
 const TeamDefensiveStats: React.FC = () => {
-  // State variables for form inputs
-  const [teamCode, setTeamCode] = useState('');
+  // --- State ---
+  // REMOVED: const [teamCode, setTeamCode] = useState('');
+  // ADDED: Team Search State (from TeamStats)
+  const [teamSearchTerm, setTeamSearchTerm] = useState<string>('');
+  const [teamSearchResults, setTeamSearchResults] = useState<TeamSearchResult[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<TeamSearchResult | null>(null); // Replaces teamCode state
+  const [isSearchingTeams, setIsSearchingTeams] = useState<boolean>(false);
+  const [searchTeamError, setSearchTeamError] = useState<string | null>(null);
+
+  // Filters State (keep as is)
   const [season, setSeason] = useState<number | ''>('');
   const [week, setWeek] = useState<number | ''>('');
-  const [selectedStat, setSelectedStat] = useState<keyof DefensiveStats>(defensiveStatOptions[0].value); // Default to the first stat
+  const [selectedStat, setSelectedStat] = useState<keyof DefensiveStats>(defensiveStatOptions[0].value);
 
-  // State variables for data, chart, and errors
-  const [rawData, setRawData] = useState<DefensiveStats[]>([]); // Store raw API response
-  const [chartData, setChartData] = useState<any>(null); // Data formatted for the Chart component
+  // Data & UI State (keep as is)
+  const [rawData, setRawData] = useState<DefensiveStats[]>([]);
+  const [chartData, setChartData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Generate dropdown options for years and weeks
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i); // From current year down to 1920
-  const weeks = Array.from({ length: 22 }, (_, i) => i + 1); // Weeks 1-22
+  // --- Dropdown Options (keep as is) ---
+  const currentYear = new Date().getFullYear()-1;
+  const years = Array.from({ length: currentYear - 2000 + 1 }, (_, i) => 2000 + i).reverse();
+  const weeks = Array.from({ length: 22 }, (_, i) => i + 1);
 
-  // Function to fetch data from the API
+  // --- API Calls ---
+  // ADDED: Debounced Team Search (from TeamStats)
+   const debouncedTeamSearch = useCallback(
+    debounce(async (searchTerm: string) => {
+      if (!API_BASE_URL) { setSearchTeamError("API URL missing"); setIsSearchingTeams(false); return; }
+      if (searchTerm.trim().length < 2) { setTeamSearchResults([]); setIsSearchingTeams(false); setSearchTeamError(null); return; }
+
+      console.log(`🚀 Triggering API Team Search: "${searchTerm}"`);
+      setIsSearchingTeams(true); setSearchTeamError(null);
+      try {
+        // Ensure this endpoint exists on your backend
+        const apiUrl = `${API_BASE_URL}/search-team`;
+        console.log(`📞 Calling API: GET ${apiUrl}?query=${searchTerm}`);
+        const response = await axios.get<TeamSearchResult[]>(apiUrl, { params: { query: searchTerm } });
+        if (!Array.isArray(response.data)) { throw new Error("Invalid data format from server."); }
+        setTeamSearchResults(response.data);
+      } catch (err) {
+        const error = err as AxiosError<{ error?: string }>;
+        console.error('❌ Team Search API Error:', error.response?.data || error.message);
+        setSearchTeamError(error.response?.data?.error || 'Team search failed.'); setTeamSearchResults([]);
+      } finally { setIsSearchingTeams(false); }
+    }, 500), [] // Add API_BASE_URL if needed, though it's read outside
+  );
+
+
+  // MODIFIED: Function to fetch data - uses selectedTeam.code
   const fetchData = async () => {
-    if (!teamCode) {
-      setError('Please enter a team code.');
+    // Use selectedTeam?.code instead of teamCode
+    const currentTeamCode = selectedTeam?.code;
+
+    if (!currentTeamCode) { // Check selectedTeam instead of teamCode
+      setError('Please search for and select a team.');
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    setChartData(null); // Clear previous chart
-    setRawData([]); // Clear previous raw data
+    setChartData(null);
+    setRawData([]);
 
     try {
-      // Construct API request parameters
       const params: { team: string; season?: number; week?: number } = {
-        team: teamCode,
+        team: currentTeamCode, // Use code from selected team
       };
       if (season) params.season = season;
       if (week) params.week = week;
 
-      // Make API call using axios
-      const response = await axios.get<DefensiveStats[]>('http://localhost:3000/defensive-stats', {
-        params,
-      });
+      // Assuming the endpoint is correct for defensive stats
+      const apiUrl = `${API_BASE_URL}/defensive-stats`;
+      console.log(`DEF STATS: Calling ${apiUrl} with params:`, params) // Add log
+      const response = await axios.get<DefensiveStats[]>(apiUrl, { params });
+      console.log(`DEF STATS: Received raw data:`, response.data); // Add log
 
-      // Filter out any null/empty responses if the API might return them
       const filteredData = response.data.filter((item): item is DefensiveStats => item !== null && typeof item === 'object');
 
       if (!filteredData.length) {
@@ -89,150 +133,199 @@ const TeamDefensiveStats: React.FC = () => {
         setRawData([]);
       } else {
         setRawData(filteredData);
-        // Initial chart generation will be handled by useEffect watching rawData and selectedStat
       }
     } catch (err: any) {
+      const error = err as AxiosError; // Use AxiosError for better type checking
       console.error('Error fetching defensive stats:', err);
-      setError(err.response?.data?.error || 'An error occurred while fetching stats.');
+      // Check for network error vs API error response
+      if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          //  setError(error.response.data? || `API Error: ${error.response.status}`);
+      } else if (error.request) {
+          // The request was made but no response was received
+           setError('Network Error: Could not reach API server.');
+      } else {
+           // Something happened in setting up the request that triggered an Error
+           setError(`Request Setup Error: ${error.message}`);
+      }
       setRawData([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle form submission
+  // MODIFIED: Handle form submission - checks selectedTeam
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedTeam) { // Check if a team is selected
+        setError("Please search for and select a team first.");
+        return;
+    }
     fetchData();
   };
 
-  // Effect hook to update chart data when raw data or selected stat changes
-  useEffect(() => {
-    if (rawData.length > 0 && selectedStat) {
-      // Generate labels (e.g., "Game 1", "Game 2" or based on week/season if available)
-      // Assuming the API returns data in chronological order if multiple games are fetched
-      const labels = rawData.map((_, idx) => `Game ${idx + 1}`); // Simple labeling
+  // ADDED: Event Handlers for Team Search (from TeamStats)
+  const handleTeamSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const term = e.target.value;
+      setTeamSearchTerm(term);
+      // Clear selection when user starts typing again
+      if (selectedTeam) {
+          setSelectedTeam(null);
+          setRawData([]); // Clear old data
+          setChartData(null); // Clear chart
+          setError(null); // Clear errors
+      }
+      // Reset search results and trigger debounced search
+      setTeamSearchResults([]);
+      setSearchTeamError(null);
+      debouncedTeamSearch(term);
+  };
 
-      // Extract the selected stat's data points
+   const handleSelectTeam = (team: TeamSearchResult) => {
+       console.log(`Team selected:`, team);
+       setSelectedTeam(team);
+       setTeamSearchTerm(''); // Clear search term visually
+       setTeamSearchResults([]); // Hide results
+       setSearchTeamError(null);
+       // Optionally trigger fetchData here OR rely on submit button
+       // fetchData(); // <-- Uncomment this if you want data to load immediately on selection
+   };
+
+   const handleClearTeamSelection = () => {
+       setSelectedTeam(null);
+       setTeamSearchTerm('');
+       setTeamSearchResults([]);
+       setSearchTeamError(null);
+       setRawData([]); // Clear data
+       setChartData(null); // Clear chart
+       setError(null); // Clear errors
+   };
+
+
+  // MODIFIED: Effect hook to update chart data - uses selectedTeam.code for label
+  useEffect(() => {
+    if (rawData.length > 0 && selectedStat && selectedTeam) { // Check selectedTeam
+      const labels = rawData.map((_, idx) => `Game ${idx + 1}`);
       const dataPoints = rawData.map((item) => {
         const value = item[selectedStat];
-        // Ensure value is a number, default to 0 if undefined or not a number
         return typeof value === 'number' ? value : 0;
       });
-
-      // Find the label for the selected stat
       const statLabel = defensiveStatOptions.find(opt => opt.value === selectedStat)?.label || selectedStat;
 
-      // Prepare data structure for the Chart component
       setChartData({
         labels,
         datasets: [
           {
-            label: `${statLabel} (${teamCode})`, // Dynamic label
+            label: `${statLabel} (${selectedTeam.code})`, // Use selectedTeam.code
             data: dataPoints,
-            backgroundColor: 'rgba(255, 99, 132, 0.5)', // Example styling
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
             borderColor: 'rgb(255, 99, 132)',
             borderWidth: 1,
           },
         ],
       });
     } else {
-      setChartData(null); // Clear chart if no data or stat selected
+      setChartData(null);
     }
-  }, [rawData, selectedStat, teamCode]); // Re-run effect if these dependencies change
+  // Update dependency array
+  }, [rawData, selectedStat, selectedTeam]); // Use selectedTeam instead of teamCode
 
+  // --- Render ---
   return (
-    <div className="stats-container"> {/* Reuse existing container style */}
+    <div className="stats-container">
       <h2>Team Defensive Stats</h2>
 
-      {/* Form for selecting team, season, week, and stat */}
-      <form className="stats-form" onSubmit={handleSubmit}> {/* Reuse existing form style */}
-        {/* Team Code Input */}
-        <label>
-          Team Code:
-          <input
-            type="text"
-            value={teamCode}
-            onChange={(e) => setTeamCode(e.target.value.toUpperCase())} // Ensure uppercase
-            placeholder="e.g., KC"
-            required
-            maxLength={3} // Typically 2 or 3 letters
-            pattern="[A-Za-z]{2,3}" // Basic pattern validation
-            title="Enter a 2 or 3 letter team code"
-          />
-        </label>
+      {/* Form */}
+      <form className="stats-form" onSubmit={handleSubmit}>
+        {/* ADDED: Team Search Input (replaces simple text input) */}
+        {/* Using player-search-input-container class for structure/styling consistency */}
+        <div className="player-search-input-container" style={{width: '100%', maxWidth: '350px'}}>
+            <label htmlFor="team-search-input"> Team: </label>
+            <div className="input-group">
+              <input
+                  id="team-search-input"
+                  type="text"
+                  placeholder="Search Team..."
+                  value={selectedTeam ? selectedTeam.name : teamSearchTerm} // Display name or search term
+                  onChange={handleTeamSearchChange}
+                  onFocus={() => {
+                      if (selectedTeam) { handleClearTeamSelection(); } // Clear selection on focus if already selected
+                      setTeamSearchResults([]); // Clear results on focus
+                      setSearchTeamError(null);
+                  }}
+                  onBlur={() => {
+                      // Delay hiding results slightly to allow click
+                      setTimeout(() => { setTeamSearchResults([]); }, 200);
+                  }}
+                  autoComplete="off"
+              />
+              {/* Show clear button only when a team is selected */}
+              {selectedTeam && (
+                  <button type="button" className="clear" onClick={handleClearTeamSelection} title="Clear selection"> X </button>
+              )}
+            </div>
+            {/* Search Status Display */}
+            <div className="search-status" style={{ height: '1.2em', marginTop: '4px' }}>
+              {isSearchingTeams && <span className="searching">Searching...</span>}
+              {searchTeamError && <span className="error">{searchTeamError}</span>}
+            </div>
+            {/* Search Results Dropdown */}
+            {teamSearchResults.length > 0 && !selectedTeam && (
+                <ul className="search-results-list">
+                  {teamSearchResults.map((team) => (
+                  <li key={team.code} onMouseDown={() => handleSelectTeam(team)} >
+                      {team.name} ({team.code}) {/* Display name and code */}
+                  </li>
+                  ))}
+              </ul>
+            )}
+        </div>
 
-        {/* Season Selector */}
+        {/* Season Selector (Keep as is) */}
         <label>
           Year:
-          <select
-            value={season}
-            onChange={(e) => setSeason(e.target.value ? Number(e.target.value) : '')}
-          >
-            <option value="">All Seasons</option> {/* Option for no season filter */}
-            {years.map((yr) => (
-              <option key={yr} value={yr}>
-                {yr}
-              </option>
-            ))}
+          <select value={season} onChange={(e) => setSeason(e.target.value ? Number(e.target.value) : '')}>
+            <option value="">All Seasons</option>
+            {years.map((yr) => (<option key={yr} value={yr}>{yr}</option>))}
           </select>
         </label>
 
-        {/* Week Selector */}
+        {/* Week Selector (Keep as is) */}
         <label>
           Week:
-          <select
-            value={week}
-            onChange={(e) => setWeek(e.target.value ? Number(e.target.value) : '')}
-            disabled={!season} // Optionally disable week if no season is selected
-          >
-            <option value="">All Weeks</option> {/* Option for no week filter */}
-            {weeks.map((wk) => (
-              <option key={wk} value={wk}>
-                {wk}
-              </option>
-            ))}
+          <select value={week} onChange={(e) => setWeek(e.target.value ? Number(e.target.value) : '')} disabled={!season}>
+            <option value="">All Weeks</option>
+            {weeks.map((wk) => (<option key={wk} value={wk}>{wk}</option>))}
           </select>
         </label>
 
-        {/* Defensive Stat Selector */}
+        {/* Defensive Stat Selector (Keep as is) */}
         <label>
           Stat:
-          <select
-            value={selectedStat}
-            onChange={(e) => setSelectedStat(e.target.value as keyof DefensiveStats)}
-          >
+          <select value={selectedStat} onChange={(e) => setSelectedStat(e.target.value as keyof DefensiveStats)}>
             {defensiveStatOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
+              <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
         </label>
 
-        {/* Submit Button */}
-        <button type="submit" disabled={isLoading}>
+        {/* Submit Button - MODIFIED disabled condition */}
+        <button className="submit-button" type="submit" disabled={isLoading || !selectedTeam}> {/* Check selectedTeam */}
           {isLoading ? 'Loading...' : 'Get Stats'}
         </button>
       </form>
 
-      {/* Display Error Messages */}
+      {/* Display Error Messages (Keep as is) */}
       {error && <p className="error-message">{error}</p>}
 
-      {/* Display Chart */}
+      {/* Display Chart (Keep as is) */}
       {chartData && !isLoading && (
-        <div className="chart-container"> {/* Reuse existing chart container style */}
-          {/* Assuming Chart component takes data prop */}
+        <div className="chart-container">
           <Chart data={chartData} />
         </div>
       )}
 
-      {/* Optional: Display raw data for debugging */}
-      {/* {rawData.length > 0 && (
-        <pre style={{ color: 'white', marginTop: '20px', textAlign: 'left', maxWidth: '800px' }}>
-          {JSON.stringify(rawData, null, 2)}
-        </pre>
-      )} */}
     </div>
   );
 };

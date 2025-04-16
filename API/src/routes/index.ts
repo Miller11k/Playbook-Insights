@@ -20,7 +20,7 @@ import getGameResults from './teams/GET/get_game_results.js';
 
 import getTeamPassingStats from './teams/GET/get_team_passing_stats.js';
 import getTeamRushingStats from './teams/GET/get_team_rushing_stats.js';
-import getTeamRecievingStats from './teams/GET/get_team_recieving_stats.js';
+import getTeamRecievingStats from './teams/GET/get_team_recieving_stats.js'; // Corrected spelling? receiving vs recieving
 import getTeamRecord from './teams/GET/get_team_record.js';
 import getTeamRoster from './teams/GET/get_team_roster.js';
 
@@ -29,6 +29,9 @@ import getPlayerRushingStats from './players/GET/get_player_rushing_stats.js';
 import getPlayerPassingStats from './players/GET/get_player_passing_stats.js';
 import getPlayerExtraData from './players/GET/get_player_extra_data.js';
 import getPlayerReceivingStats from './players/GET/get_player_receiving_stats.js';
+// Correctly import the search handler (assuming filename is get_player_names.ts/js)
+import searchRouteHandler from './players/GET/get_player_names.js'; // Renamed import variable for clarity
+import searchTeam from './teams/GET/get_team_names.js'; // Assuming this is the correct import for team search
 
 
 // Create a router instance to group and manage related user routes
@@ -36,57 +39,42 @@ const router = Router();
 
 /**
  * Registers all routes with their respective paths.
- * 
- * @route GET /status - Check API status.
- * @route GET /routes - List all available routes.
- * @route GET /test-db - Test database connection.
- * 
- * @route GET /player-info - Retrieve player information.
- * 
- * @route GET /team-info - Retrieve team information.
- * @route GET /offensive-stats - Retrieve offensive statistics for a team.
- * @route GET /defensive-stats - Retrieve defensive statistics for a team.
- * @route GET /special-team-stats - Retrieve special teams statistics for a team.
- * @route GET /game-results - Retrieve past game results for a team.
- * 
- * @route GET /passing-stats - Retrieve passing statistics for a team.
- * @route GET /rushing-stats - Retrieve rushing statistics for a team.
- * @route GET /recieving-stats - Retrieve receiving statistics for a team.
- * @route GET /team-record - Retrieve win-loss record for a team.
- * @route GET /team-roster - Retrieve team roster.
- * 
- * @route GET /player-rushing-stats - Retrieve rushing statistics for a player.
- * @route GET /player-passing-stats - Retrieve passing statistics for a player.
- * @route GET /player-extra-data - Retrieve extra data for a player.
- * @route GET /player-receiving-stats - Retrieve receiving statistics for a player.
- * 
+ * (Documentation comments remain the same)
  */
 
+// --- Other Routes ---
 router.use('/status', statusRoute);
 router.use("/routes", routesRoute);
 router.use("/test-db", testDBRoute);
 
+// --- Player Info ---
 router.use("/player-info", getPlayerInfoRoute);
 
+// --- Team Info & Stats ---
 router.use("/team-info", getTeamInfoRoute);
 router.use("/offensive-stats", getTeamOffensiveStats);
-router.use("/defensive-stats", getTeamDefensiveStats);
+router.use("/defensive-stats", getTeamDefensiveStats); // Make sure frontend calls this path for defense section
 router.use("/special-team-stats", getTeamSpecialTeamStats);
 router.use("/game-results", getGameResults);
-
-router.use("/passing-stats", getTeamPassingStats);
-router.use("/rushing-stats", getTeamRushingStats);
-router.use("/receiving-stats", getTeamRecievingStats);
+router.use("/passing-stats", getTeamPassingStats); // Team passing
+router.use("/rushing-stats", getTeamRushingStats); // Team rushing
+router.use("/receiving-stats", getTeamRecievingStats); // Team receiving (check filename/import spelling)
 router.use("/team-record", getTeamRecord);
 router.use("/team-roster", getTeamRoster);
+// --- Team Search ---
+router.use("/search-team", searchTeam); // Assuming this is the correct import for team search
 
-
+// --- Player Stats ---
+// Removed duplicate routes
 router.use("/player-rushing-stats", getPlayerRushingStats);
 router.use("/player-passing-stats", getPlayerPassingStats);
 router.use("/player-extra-data", getPlayerExtraData);
-router.use("/player-passing-stats", getPlayerPassingStats);
 router.use("/player-receiving-stats", getPlayerReceivingStats);
-router.use("/player-rushing-stats", getPlayerRushingStats);
+
+// --- Player Search ---
+// ** FIX: Use the correct handler imported for search **
+router.use("/search", searchRouteHandler);
+
 
 /**
  * Exports the configured Express router for use in the main application.

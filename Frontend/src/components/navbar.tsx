@@ -28,12 +28,9 @@ const Navbar: React.FC = () => {
           </li>
 
           {/* Defensive Insights Dropdown - Kept as dropdown */}
-          <li className="dropdown">
-            <span>Defensive Insights</span>
-            <ul className="dropdown-menu">
-              <li><Link to="/defensive-stats/team">Team Stats</Link></li>
-              <li><Link to="/defensive-stats/ranking">Team Rankings</Link></li>
-            </ul>
+          <li>
+             {/* Link to the primary/passing stats page, or a general /player-stats page if you create one */}
+            <Link to="/defensive-stats/team">Team Stats</Link>
           </li>
         </ul>
       </div>

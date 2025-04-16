@@ -71,7 +71,7 @@ router.get('/', async (req: Request, res: Response) => {
 
         // Construct the SQL query dynamically.
         const query = `
-            SELECT receiving_stats
+            SELECT receiving_stats, season, week, opponent_team
             FROM ${tableName}
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""}
             ;
@@ -85,7 +85,7 @@ router.get('/', async (req: Request, res: Response) => {
         }
 
         // Return an array of receiving_stats JSON objects.
-        res.status(200).json(result.rows.map(row => row.receiving_stats));
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
