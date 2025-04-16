@@ -3,9 +3,7 @@ import { printRouteHit, printRequestHeaders, printRequestParams, printRequestQue
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { playerDBClient } from '../../../config/dbConfig.js';
 
-const router = Router();
-
-router.get('/', async (req: Request, res: Response) => {
+export async function getTeamRoster(req: Request, res: Response) {
     printRouteHit("GET", "/team-roster");
     printRequestParams(req.params);
     printRequestHeaders(req.headers);
@@ -140,6 +138,6 @@ router.get('/', async (req: Request, res: Response) => {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
+}
 
-export default router;
+export default getTeamRoster;

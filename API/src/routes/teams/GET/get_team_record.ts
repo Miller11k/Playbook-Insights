@@ -4,12 +4,7 @@ import { printRequestHeaders, printRequestParams, printRequestQuery, printRouteH
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { teamDBClient } from '../../../config/dbConfig.js';
 
-// Create a new router instance
-const router = Router();
-
-// Define the GET route for fetching the team record
-// Note: We use "/" here because the route is mounted at "/team-record"
-router.get('/', async (req: Request, res: Response) => {
+export async function getTeamRecord(req: Request, res: Response) {
     // Log the route hit and print request details
     printRouteHit("GET", "/team-record");
     printRequestParams(req.params);
@@ -145,6 +140,6 @@ router.get('/', async (req: Request, res: Response) => {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
+}
 
-export default router;
+export default getTeamRecord;

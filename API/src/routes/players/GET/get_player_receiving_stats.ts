@@ -1,11 +1,9 @@
-import { Request, Response, Router } from 'express';
+import e, { Request, Response, Router } from 'express';
 import { printRouteHit, printRequestHeaders, printRequestParams, printRequestQuery } from '../../../helpers/routePrintHelper.js';
 import { isValidPlayerID, isValidTeamID } from '../../../helpers/validateHelper.js';
 import { playerDBClient } from '../../../config/dbConfig.js';
 
-const router = Router();
-
-router.get('/', async (req: Request, res: Response) => {
+export async function getPlayerReceivingStats(req: Request, res: Response): Promise<void> {
     printRouteHit("GET", "/player-receiving-stats");
     printRequestParams(req.params);
     printRequestHeaders(req.headers);
@@ -90,6 +88,6 @@ router.get('/', async (req: Request, res: Response) => {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
+}
 
-export default router;
+export default getPlayerReceivingStats;
