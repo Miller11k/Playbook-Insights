@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios, { AxiosError } from 'axios';
 import Chart from '../../components/charts/Chart';
-// Assuming TeamStats.css contains styles for the form AND search components
 import './TeamStats.css';
-// Import debounce
 import { debounce } from 'lodash';
 
 // --- Interfaces ---
-// Interface for the defensive stats object expected from the API
+// Structure of the defensive stats returned from API
 interface DefensiveStats {
   passing_yards_allowed?: number;
   rushing_yards_allowed?: number;
@@ -23,15 +21,18 @@ interface DefensiveStats {
   [key: string]: number | undefined;
 }
 
-// Interface for team search results (copied from TeamStats)
-interface TeamSearchResult { code: string; name: string; }
+// Structure of team search results from API
+interface TeamSearchResult {
+  code: string;
+  name: string;
+}
 
 // --- Constants ---
-// Copied from TeamStats - adjust if needed
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'; // Ensure this is correct
+// Base URL for backend API
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 console.log('DEF STATS Using API Base URL:', API_BASE_URL);
 
-// Define available defensive stats for selection (keep as is)
+// Options for dropdown stat selection
 const defensiveStatOptions: { value: keyof DefensiveStats; label: string }[] = [
   { value: 'passing_yards_allowed', label: 'Passing Yards Allowed' },
   { value: 'rushing_yards_allowed', label: 'Rushing Yards Allowed' },
@@ -48,62 +49,70 @@ const defensiveStatOptions: { value: keyof DefensiveStats; label: string }[] = [
 
 // --- Component ---
 const TeamDefensiveStats: React.FC = () => {
-  // --- State ---
-  // REMOVED: const [teamCode, setTeamCode] = useState('');
-  // ADDED: Team Search State (from TeamStats)
+  // Team search input state
   const [teamSearchTerm, setTeamSearchTerm] = useState<string>('');
   const [teamSearchResults, setTeamSearchResults] = useState<TeamSearchResult[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<TeamSearchResult | null>(null); // Replaces teamCode state
+  const [selectedTeam, setSelectedTeam] = useState<TeamSearchResult | null>(null);
   const [isSearchingTeams, setIsSearchingTeams] = useState<boolean>(false);
   const [searchTeamError, setSearchTeamError] = useState<string | null>(null);
 
-  // Filters State (keep as is)
+  // Filters for year and week
   const [season, setSeason] = useState<number | ''>('');
   const [week, setWeek] = useState<number | ''>('');
   const [selectedStat, setSelectedStat] = useState<keyof DefensiveStats>(defensiveStatOptions[0].value);
 
-  // Data & UI State (keep as is)
+  // Data and chart state
   const [rawData, setRawData] = useState<DefensiveStats[]>([]);
   const [chartData, setChartData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // --- Dropdown Options (keep as is) ---
-  const currentYear = new Date().getFullYear()-1;
+  // Dropdown options for year and week
+  const currentYear = new Date().getFullYear() - 1;
   const years = Array.from({ length: currentYear - 2000 + 1 }, (_, i) => 2000 + i).reverse();
   const weeks = Array.from({ length: 22 }, (_, i) => i + 1);
 
-  // --- API Calls ---
-  // ADDED: Debounced Team Search (from TeamStats)
-   const debouncedTeamSearch = useCallback(
+  // Debounced team search using backend /search-team endpoint
+  const debouncedTeamSearch = useCallback(
     debounce(async (searchTerm: string) => {
-      if (!API_BASE_URL) { setSearchTeamError("API URL missing"); setIsSearchingTeams(false); return; }
-      if (searchTerm.trim().length < 2) { setTeamSearchResults([]); setIsSearchingTeams(false); setSearchTeamError(null); return; }
+      if (!API_BASE_URL) {
+        setSearchTeamError("API URL missing");
+        setIsSearchingTeams(false);
+        return;
+      }
+      if (searchTerm.trim().length < 2) {
+        setTeamSearchResults([]);
+        setIsSearchingTeams(false);
+        setSearchTeamError(null);
+        return;
+      }
 
       console.log(`🚀 Triggering API Team Search: "${searchTerm}"`);
-      setIsSearchingTeams(true); setSearchTeamError(null);
+      setIsSearchingTeams(true);
+      setSearchTeamError(null);
       try {
-        // Ensure this endpoint exists on your backend
         const apiUrl = `${API_BASE_URL}/search-team`;
         console.log(`📞 Calling API: GET ${apiUrl}?query=${searchTerm}`);
         const response = await axios.get<TeamSearchResult[]>(apiUrl, { params: { query: searchTerm } });
-        if (!Array.isArray(response.data)) { throw new Error("Invalid data format from server."); }
+        if (!Array.isArray(response.data)) throw new Error("Invalid data format from server.");
         setTeamSearchResults(response.data);
       } catch (err) {
         const error = err as AxiosError<{ error?: string }>;
         console.error('❌ Team Search API Error:', error.response?.data || error.message);
-        setSearchTeamError(error.response?.data?.error || 'Team search failed.'); setTeamSearchResults([]);
-      } finally { setIsSearchingTeams(false); }
-    }, 500), [] // Add API_BASE_URL if needed, though it's read outside
+        setSearchTeamError(error.response?.data?.error || 'Team search failed.');
+        setTeamSearchResults([]);
+      } finally {
+        setIsSearchingTeams(false);
+      }
+    }, 500),
+    []
   );
 
-
-  // MODIFIED: Function to fetch data - uses selectedTeam.code
+  // Fetch defensive stats for selected team
   const fetchData = async () => {
-    // Use selectedTeam?.code instead of teamCode
     const currentTeamCode = selectedTeam?.code;
 
-    if (!currentTeamCode) { // Check selectedTeam instead of teamCode
+    if (!currentTeamCode) {
       setError('Please search for and select a team.');
       return;
     }
@@ -114,19 +123,16 @@ const TeamDefensiveStats: React.FC = () => {
     setRawData([]);
 
     try {
-      const params: { team: string; season?: number; week?: number } = {
-        team: currentTeamCode, // Use code from selected team
-      };
+      const params: { team: string; season?: number; week?: number } = { team: currentTeamCode };
       if (season) params.season = season;
       if (week) params.week = week;
 
-      // Assuming the endpoint is correct for defensive stats
       const unifiedUrl = `${API_BASE_URL}/`;
-      console.log(`DEF STATS: Calling ${unifiedUrl} with headers x-entity-type=team, x-stats-type=defensive and params:`, params);
+      console.log(`DEF STATS: Calling ${unifiedUrl}`, params);
       const response = await axios.get<DefensiveStats[]>(unifiedUrl, {
         headers: {
           'x-entity-type': 'team',
-          'x-stats-type' : 'defensive'
+          'x-stats-type': 'defensive'
         },
         params
       });
@@ -141,19 +147,14 @@ const TeamDefensiveStats: React.FC = () => {
         setRawData(filteredData);
       }
     } catch (err: any) {
-      const error = err as AxiosError; // Use AxiosError for better type checking
+      const error = err as AxiosError;
       console.error('Error fetching defensive stats:', err);
-      // Check for network error vs API error response
       if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          //  setError(error.response.data? || `API Error: ${error.response.status}`);
+        // setError(error.response.data || `API Error: ${error.response.status}`);
       } else if (error.request) {
-          // The request was made but no response was received
-           setError('Network Error: Could not reach API server.');
+        setError('Network Error: Could not reach API server.');
       } else {
-           // Something happened in setting up the request that triggered an Error
-           setError(`Request Setup Error: ${error.message}`);
+        setError(`Request Setup Error: ${error.message}`);
       }
       setRawData([]);
     } finally {
@@ -161,69 +162,73 @@ const TeamDefensiveStats: React.FC = () => {
     }
   };
 
-  // MODIFIED: Handle form submission - checks selectedTeam
+  // Form submit triggers data fetch
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTeam) { // Check if a team is selected
-        setError("Please search for and select a team first.");
-        return;
+    if (!selectedTeam) {
+      setError("Please search for and select a team first.");
+      return;
     }
     fetchData();
   };
 
-  // ADDED: Event Handlers for Team Search (from TeamStats)
+  // Handle changes to search input
   const handleTeamSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const term = e.target.value;
-      setTeamSearchTerm(term);
-      // Clear selection when user starts typing again
-      if (selectedTeam) {
-          setSelectedTeam(null);
-          setRawData([]); // Clear old data
-          setChartData(null); // Clear chart
-          setError(null); // Clear errors
-      }
-      // Reset search results and trigger debounced search
-      setTeamSearchResults([]);
-      setSearchTeamError(null);
-      debouncedTeamSearch(term);
+    const term = e.target.value;
+    setTeamSearchTerm(term);
+    if (selectedTeam) {
+      setSelectedTeam(null);
+      setRawData([]);
+      setChartData(null);
+      setError(null);
+    }
+    setTeamSearchResults([]);
+    setSearchTeamError(null);
+    debouncedTeamSearch(term);
   };
 
-   const handleSelectTeam = (team: TeamSearchResult) => {
-       console.log(`Team selected:`, team);
-       setSelectedTeam(team);
-       setTeamSearchTerm(''); // Clear search term visually
-       setTeamSearchResults([]); // Hide results
-       setSearchTeamError(null);
-       // Optionally trigger fetchData here OR rely on submit button
-       // fetchData(); // <-- Uncomment this if you want data to load immediately on selection
-   };
+  // Handle team selection from dropdown
+  const handleSelectTeam = (team: TeamSearchResult) => {
+    console.log(`Team selected:`, team);
+    setSelectedTeam(team);
+    setTeamSearchTerm('');
+    setTeamSearchResults([]);
+    setSearchTeamError(null);
+  };
 
-   const handleClearTeamSelection = () => {
-       setSelectedTeam(null);
-       setTeamSearchTerm('');
-       setTeamSearchResults([]);
-       setSearchTeamError(null);
-       setRawData([]); // Clear data
-       setChartData(null); // Clear chart
-       setError(null); // Clear errors
-   };
+  // Clear selected team and reset states
+  const handleClearTeamSelection = () => {
+    setSelectedTeam(null);
+    setTeamSearchTerm('');
+    setTeamSearchResults([]);
+    setSearchTeamError(null);
+    setRawData([]);
+    setChartData(null);
+    setError(null);
+  };
 
-
-  // MODIFIED: Effect hook to update chart data - uses selectedTeam.code for label
+  // When raw data or filters change, regenerate chart
   useEffect(() => {
-    if (rawData.length > 0 && selectedStat && selectedTeam) { // Check selectedTeam
-      const labels = rawData.map((_, idx) => `Game ${idx + 1}`);
+    if (rawData.length > 0 && selectedStat && selectedTeam) {
+      const labels = rawData.map(game => {
+        if (String(game.opponent_team) === 'BYE') return `BYE W${game.week}`;
+        const opponentCode = game.opponent_team || 'N/A';
+        const weekNum = game.week != null ? game.week : '?';
+        return `${opponentCode} W${weekNum}`;
+      });
+
       const dataPoints = rawData.map((item) => {
         const value = item[selectedStat];
         return typeof value === 'number' ? value : 0;
       });
+
       const statLabel = defensiveStatOptions.find(opt => opt.value === selectedStat)?.label || selectedStat;
 
       setChartData({
         labels,
         datasets: [
           {
-            label: `${statLabel} (${selectedTeam.code})`, // Use selectedTeam.code
+            label: `${statLabel} (${selectedTeam.code})`,
             data: dataPoints,
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
             borderColor: 'rgb(255, 99, 132)',
@@ -234,61 +239,52 @@ const TeamDefensiveStats: React.FC = () => {
     } else {
       setChartData(null);
     }
-  // Update dependency array
-  }, [rawData, selectedStat, selectedTeam]); // Use selectedTeam instead of teamCode
+  }, [rawData, selectedStat, selectedTeam]);
 
   // --- Render ---
   return (
     <div className="stats-container">
       <h2>Team Defensive Stats</h2>
 
-      {/* Form */}
       <form className="stats-form" onSubmit={handleSubmit}>
-        {/* ADDED: Team Search Input (replaces simple text input) */}
-        {/* Using player-search-input-container class for structure/styling consistency */}
-        <div className="player-search-input-container" style={{width: '100%', maxWidth: '350px'}}>
-            <label htmlFor="team-search-input"> Team: </label>
-            <div className="input-group">
-              <input
-                  id="team-search-input"
-                  type="text"
-                  placeholder="Search Team..."
-                  value={selectedTeam ? selectedTeam.name : teamSearchTerm} // Display name or search term
-                  onChange={handleTeamSearchChange}
-                  onFocus={() => {
-                      if (selectedTeam) { handleClearTeamSelection(); } // Clear selection on focus if already selected
-                      setTeamSearchResults([]); // Clear results on focus
-                      setSearchTeamError(null);
-                  }}
-                  onBlur={() => {
-                      // Delay hiding results slightly to allow click
-                      setTimeout(() => { setTeamSearchResults([]); }, 200);
-                  }}
-                  autoComplete="off"
-              />
-              {/* Show clear button only when a team is selected */}
-              {selectedTeam && (
-                  <button type="button" className="clear" onClick={handleClearTeamSelection} title="Clear selection"> X </button>
-              )}
-            </div>
-            {/* Search Status Display */}
-            <div className="search-status" style={{ height: '1.2em', marginTop: '4px' }}>
-              {isSearchingTeams && <span className="searching">Searching...</span>}
-              {searchTeamError && <span className="error">{searchTeamError}</span>}
-            </div>
-            {/* Search Results Dropdown */}
-            {teamSearchResults.length > 0 && !selectedTeam && (
-                <ul className="search-results-list">
-                  {teamSearchResults.map((team) => (
-                  <li key={team.code} onMouseDown={() => handleSelectTeam(team)} >
-                      {team.name} ({team.code}) {/* Display name and code */}
-                  </li>
-                  ))}
-              </ul>
+        {/* Team search input with auto-select dropdown */}
+        <div className="player-search-input-container" style={{ width: '100%', maxWidth: '350px' }}>
+          <label htmlFor="team-search-input"> Team: </label>
+          <div className="input-group">
+            <input
+              id="team-search-input"
+              type="text"
+              placeholder="Search Team..."
+              value={selectedTeam ? selectedTeam.name : teamSearchTerm}
+              onChange={handleTeamSearchChange}
+              onFocus={() => {
+                if (selectedTeam) handleClearTeamSelection();
+                setTeamSearchResults([]);
+                setSearchTeamError(null);
+              }}
+              onBlur={() => setTimeout(() => setTeamSearchResults([]), 200)}
+              autoComplete="off"
+            />
+            {selectedTeam && (
+              <button type="button" className="clear" onClick={handleClearTeamSelection} title="Clear selection"> X </button>
             )}
+          </div>
+          <div className="search-status" style={{ height: '1.2em', marginTop: '4px' }}>
+            {isSearchingTeams && <span className="searching">Searching...</span>}
+            {searchTeamError && <span className="error">{searchTeamError}</span>}
+          </div>
+          {teamSearchResults.length > 0 && !selectedTeam && (
+            <ul className="search-results-list">
+              {teamSearchResults.map((team) => (
+                <li key={team.code} onMouseDown={() => handleSelectTeam(team)}>
+                  {team.name} ({team.code})
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        {/* Season Selector (Keep as is) */}
+        {/* Season filter */}
         <label>
           Year:
           <select value={season} onChange={(e) => setSeason(e.target.value ? Number(e.target.value) : '')}>
@@ -297,7 +293,7 @@ const TeamDefensiveStats: React.FC = () => {
           </select>
         </label>
 
-        {/* Week Selector (Keep as is) */}
+        {/* Week filter */}
         <label>
           Week:
           <select value={week} onChange={(e) => setWeek(e.target.value ? Number(e.target.value) : '')} disabled={!season}>
@@ -306,7 +302,7 @@ const TeamDefensiveStats: React.FC = () => {
           </select>
         </label>
 
-        {/* Defensive Stat Selector (Keep as is) */}
+        {/* Stat filter */}
         <label>
           Stat:
           <select value={selectedStat} onChange={(e) => setSelectedStat(e.target.value as keyof DefensiveStats)}>
@@ -316,22 +312,21 @@ const TeamDefensiveStats: React.FC = () => {
           </select>
         </label>
 
-        {/* Submit Button - MODIFIED disabled condition */}
-        <button className="submit-button" type="submit" disabled={isLoading || !selectedTeam}> {/* Check selectedTeam */}
+        {/* Submit button */}
+        <button className="submit-button" type="submit" disabled={isLoading || !selectedTeam}>
           {isLoading ? 'Loading...' : 'Get Stats'}
         </button>
       </form>
 
-      {/* Display Error Messages (Keep as is) */}
+      {/* Error message */}
       {error && <p className="error-message">{error}</p>}
 
-      {/* Display Chart (Keep as is) */}
+      {/* Chart display */}
       {chartData && !isLoading && (
         <div className="chart-container">
           <Chart data={chartData} />
         </div>
       )}
-
     </div>
   );
 };
