@@ -121,10 +121,16 @@ const TeamDefensiveStats: React.FC = () => {
       if (week) params.week = week;
 
       // Assuming the endpoint is correct for defensive stats
-      const apiUrl = `${API_BASE_URL}/defensive-stats`;
-      console.log(`DEF STATS: Calling ${apiUrl} with params:`, params) // Add log
-      const response = await axios.get<DefensiveStats[]>(apiUrl, { params });
-      console.log(`DEF STATS: Received raw data:`, response.data); // Add log
+      const unifiedUrl = `${API_BASE_URL}/`;
+      console.log(`DEF STATS: Calling ${unifiedUrl} with headers x-entity-type=team, x-stats-type=defensive and params:`, params);
+      const response = await axios.get<DefensiveStats[]>(unifiedUrl, {
+        headers: {
+          'x-entity-type': 'team',
+          'x-stats-type' : 'defensive'
+        },
+        params
+      });
+      console.log(`DEF STATS: Received raw data:`, response.data);
 
       const filteredData = response.data.filter((item): item is DefensiveStats => item !== null && typeof item === 'object');
 

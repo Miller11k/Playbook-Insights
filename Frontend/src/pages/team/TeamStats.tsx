@@ -154,10 +154,15 @@ const TeamStats: React.FC = () => {
       if (season) params.season = season;
       if (week) params.week = week;
 
-      const apiUrl = `${API_BASE_URL}${selectedCategoryConfig.endpoint}`;
-      console.log(`📞 Calling API: GET ${apiUrl} with params:`, params);
-
-      const response = await axios.get<TeamGameData[]>(apiUrl, { params });
+      const unifiedUrl = `${API_BASE_URL}/`;
+      console.log(`📞 Calling API: GET ${unifiedUrl} with headers x-entity-type=team, x-stats-type=${selectedCategoryConfig.key} and params:`, params);
+      const response = await axios.get<TeamGameData[]>(unifiedUrl, {
+        headers: {
+            'x-entity-type': 'team',
+            'x-stats-type' : selectedCategoryConfig.key
+        },
+        params
+      });
 
       if (!Array.isArray(response.data)) {
           console.error("API did not return an array:", response.data);

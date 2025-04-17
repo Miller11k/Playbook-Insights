@@ -139,19 +139,18 @@ const PlayerStats: React.FC = () => {
         for (let i = 0; i < validPlayerIds.length; i++) {
             const id = validPlayerIds[i];
             const playerLogs: { [key: string]: PlayerFullGameStats } = {};
-            const endpoints = {
-                passing: `${API_BASE_URL}/player-passing-stats`,
-                rushing: `${API_BASE_URL}/player-rushing-stats`,
-                receiving: `${API_BASE_URL}/player-receiving-stats`,
-            };
+            const unifiedUrl = `${API_BASE_URL}/`;
             console.log(`📞 Fetching all stats for Player ID: ${id}`);
-            const requests = Object.entries(endpoints).map(([key, url]) =>
-                axios.get<PlayerFullGameStats[]>(url, { params: { id, ...(season && { season }), ...(week && { week }) } })
-                     .then(response => ({ key, data: response.data }))
-                     .catch(err => {
-                         console.warn(`⚠️ Failed to fetch ${key} stats for ${id}:`, err.message);
-                         return { key, data: [] };
-                     })
+            const requests = (['passing','rushing','receiving'] as const).map(key =>
+            axios.get<PlayerFullGameStats[]>(unifiedUrl, {
+                headers: {
+                'x-entity-type': 'player',
+                'x-stats-type' : key
+                },
+                params: { id, ...(season && { season }), ...(week && { week }) }
+            })
+            .then(response => ({ key, data: response.data }))
+            .catch(() => ({ key, data: [] }))
             );
             const responses = await Promise.all(requests);
             responses.forEach(response => {
@@ -241,11 +240,17 @@ const PlayerStats: React.FC = () => {
        const gameCount = playerChartData.labels.length;
 
        try {
-           const apiUrl = `${API_BASE_URL}/defensive-stats`;
-           const params = { team: selectedOpponentTeam, ...(season && { season }), ...(week && { week }) };
-           console.log(`DEFENSE EFFECT 1: Fetching ${apiUrl} with params:`, params);
-           const response = await axios.get<any[]>(apiUrl, { params });
-           console.log("DEFENSE EFFECT 1: API Response raw data:", JSON.stringify(response.data));
+            const unifiedUrl = `${API_BASE_URL}/`;
+            const params     = { team: selectedOpponentTeam, ...(season && { season }), ...(week && { week }) };
+            console.log(`DEFENSE EFFECT 1: Fetching ${unifiedUrl} with headers x-entity-type=team, x-stats-type=defensive and params:`, params);
+            const response = await axios.get<any[]>(unifiedUrl, {
+            headers: {
+                'x-entity-type': 'team',
+                'x-stats-type' : 'defensive'
+            },
+            params
+            });
+            console.log("DEFENSE EFFECT 1: API Response raw data:", JSON.stringify(response.data));
 
            if (!response.data || !Array.isArray(response.data)) {
                console.error("DEFENSE EFFECT 1: API response data is not a valid array:", response.data);
