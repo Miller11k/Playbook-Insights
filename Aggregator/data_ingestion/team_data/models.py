@@ -1,9 +1,3 @@
-"""
-Module: team_data.models
-Defines the ORM models for the team_data database, including the TeamInfo model and
-a factory function to dynamically create a team’s game log table model.
-"""
-
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, JSON, ForeignKey
 

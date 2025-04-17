@@ -1,9 +1,3 @@
-"""
-Module: player_data.models
-Defines the ORM models for the player_data database, including the PlayerBasicInfo model and
-a factory function to dynamically create a player’s game log table model.
-"""
-
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, JSON, ForeignKeyConstraint
 
