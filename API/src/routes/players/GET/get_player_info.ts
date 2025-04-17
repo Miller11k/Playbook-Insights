@@ -5,9 +5,6 @@ import { isValidPlayerID } from '../../../helpers/validateHelper.js';
 import { formatPlayerID } from '../../../helpers/formatHelper.js';
 import { playerDBClient, teamDBClient } from '../../../config/dbConfig.js';
 
-// Create a new router instance to define and group related routes
-const router = Router();
-
 /**
  * @route GET /player-info
  * @description Retrieves basic information about a player from the database.
@@ -19,7 +16,7 @@ const router = Router();
  * @returns {Object} 404 - Error if the player is not found.
  * @returns {Object} 500 - Error if there is an issue with the database or server.
  */
-router.get('/', async (req: Request, res: Response) => {
+export async function getPlayerInfo(req: Request, res: Response): Promise<void> {
     printRouteHit("GET", "/player-info");
     printRequestParams(req.params);
     printRequestHeaders(req.headers);
@@ -72,6 +69,6 @@ router.get('/', async (req: Request, res: Response) => {
         res.status(500).json({ error: "Internal Server Error" });
         return;
     }
-});
+}
 
-export default router;
+export default getPlayerInfo;

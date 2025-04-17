@@ -1,78 +1,54 @@
-/* Container fills the viewport below the fixed navbar and centers content */
-.team-stats-container {
-    position: relative;
-    top: 6rem; /* Adjust this if your navbar height changes */
-    width: 100%;
-    height: calc(100vh - 6rem);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-    padding: 1rem;
-  }
-  
-  /* Heading styling */
-  .team-stats-container h2 {
-    margin-bottom: 1rem;
-    font-size: 2.5rem;
-    color: #fff;
-  }
-  
-  /* Form container for team stats */
-  .team-stats-form {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  /* Form labels */
-  .team-stats-form label {
-    font-size: 1rem;
-    color: #fff;
-  }
-  
-  /* Inputs and selects styling */
-  .team-stats-form input,
-  .team-stats-form select {
-    min-width: 140px;
-    padding: 0.5rem;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-  
-  /* Dropdown styling: black text, white background */
-  .team-stats-form select {
-    color: #000;
-    background-color: #fff;
-  }
-  
-  /* Option elements styling */
-  .team-stats-form select option {
-    color: #000;
-    background-color: #fff;
-  }
-  
-  /* Hover styling for options */
-  .team-stats-form select option:hover {
-    background-color: lightgray;
-  }
-  
-  /* Chart container: centers chart horizontally */
-  .team-stats-chart {
-    width: 800px;
-    max-width: 90%;
-    margin: 0 auto;
-  }
-  
-  /* Error message styling */
-  .error-message {
-    color: red;
-    margin-bottom: 1rem;
-  }
-  
+/* === In your component's CSS === */
+
+/* Make the container a positioning context and reserve space */
+.stats-form .player-search-input-container {
+  position: relative;   /* Allows absolute positioning of children */
+  padding-bottom: calc(1.2em + 8px); /* Creates space for the absolute status div */
+                                    /* Adjust '8px' for desired gap */
+  /* --- Keep other styles like margin-bottom: 0, display, flex-direction, etc. --- */
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 200px;
+  max-width: 350px;
+}
+
+/* Position the status div absolutely */
+.stats-form .player-search-input-container .search-status {
+  position: absolute; /* Takes it OUT of the normal layout flow */
+  bottom: 0;        /* Positions it at the bottom of the parent's padding area */
+  left: 10px;       /* Adjust horizontal position */
+  width: calc(100% - 20px); /* Adjust width */
+  height: 1.2em;    /* Keep height consistent */
+  margin: 0;        /* Override default/inline margin-top */
+  /* --- Keep other styles like font-size, colors, text-overflow --- */
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+}
+/* Keep hover/error states */
+.stats-form .player-search-input-container .search-status.searching { color: var(--text-muted); }
+.stats-form .player-search-input-container .search-status.error { color: #ff6b6b; }
+
+/* Also ensure the form itself still has align-items: flex-end */
+.stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  /* ... rest of form styles ... */
+}
+
+/* And ensure direct labels and button have margin-bottom: 0 */
+.stats-form > label {
+  margin-bottom: 0;
+}
+.stats-form .submit-button {
+   margin-bottom: 0;
+    /* Adjust height/padding if needed */
+   height: calc( (0.6rem * 2) + 1em + 2px); /* Approx input height */
+   padding-top: 0.6rem;
+   padding-bottom: 0.6rem;
+}

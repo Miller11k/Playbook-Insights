@@ -30,12 +30,24 @@ let server: ReturnType<typeof app.listen> | null = null;
  */
 app.use((req, res, next) => {
   activeConnections++;
-  
+  console.log(`[DEBUG] Incoming request: ${req.method} ${req.url} | Active connections: ${activeConnections}`);
+
+  // DEBUG: Optionally log request headers or query params:
+  // console.log(`[DEBUG] Request headers:`, req.headers);
+  // console.log(`[DEBUG] Request query:`, req.query);
+
   /**
    * Decrements the active connection count safely.
    */
   const decrementConnections = async () => {
     activeConnections = Math.max(0, activeConnections - 1);
+    console.log(`[DEBUG] Request finished/closed: ${req.method} ${req.url} | Active connections: ${activeConnections}`);
+
+    if (shutdownRequested && activeConnections === 0) {
+      // If a shutdown was requested and no more active connections, proceed
+      console.log('[DEBUG] All connections closed. Proceeding with server shutdown.');
+      await shutdownProcedure(); // see below
+    }
   };
 
   res.on('finish', decrementConnections);
@@ -64,58 +76,41 @@ const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(r
  * @returns {Promise<import('http').Server>} The running server instance.
  */
 const startServer = async () => {
-  await connectDatabases(); // Ensure this runs inside an async function
+  console.log('[DEBUG] startServer() invoked...');
+  await connectDatabases();
 
   const PORT = parseInt(process.env.API_PORT || '3000', 10);
   const HOST = '0.0.0.0';
+
   server = app.listen(PORT, HOST, () => {
-    console.log(`Server is running on port ${PORT}\n`);
+    console.log(`[DEBUG] Server is running on http://${HOST}:${PORT}`);
   });
-  
+
   // Only set up stdin listener in non-test environments
   if (process.env.NODE_ENV !== 'test' && process.stdin.isTTY) {
+    console.log('[DEBUG] Setting up stdin for manual SIGINT (Ctrl+C) handling.');
     process.stdin.setRawMode(true);
     process.stdin.resume();
     process.stdin.on('data', (key) => {
       if (key.toString() === '\u0003') { // CTRL+C
+        console.log('[DEBUG] CTRL+C detected, emitting SIGINT...');
         process.emit('SIGINT'); // Manually trigger SIGINT handler
       }
     });
   }
-  /**
-   * Handles graceful shutdown when SIGINT (CTRL+C) is received.
-   */
+
   process.on('SIGINT', async () => {
+    console.log('\n[DEBUG] SIGINT received. Attempting graceful shutdown...');
+    shutdownRequested = true;
+
+    // Short delay to allow res.on('finish') events to fire
     await sleep(500);
 
     if (activeConnections > 0) {
-      console.warn(`Warning: ${activeConnections} active connection(s) detected. Waiting for them to finish...`);
-      shutdownRequested = true;
-      return; // Do not exit; allow connections to close naturally
-    }
-
-    console.log('\nStopping Server...');
-    // Proceed with shutdown if no active connections
-    try {
-      if (teamDBClient) {
-        await teamDBClient.end();
-        console.log('Closed teamDBClient connection');
-        await sleep(500);
-      }
-      if (playerDBClient) {
-        await playerDBClient.end();
-        console.log('Closed playerDBClient connection');
-        await sleep(500);
-      }
-    } catch (err) {
-      console.error('Error closing database connections:', err);
-    }
-
-    if (server) {
-      server.close(() => {
-        console.log('Server Stopped Successfully');
-        process.exit(0);
-      });
+      console.warn(`[DEBUG] Delaying shutdown: ${activeConnections} active connections remain. Waiting...`);
+    } else {
+      console.log('[DEBUG] No active connections. Proceeding with immediate shutdown.');
+      await shutdownProcedure();
     }
   });
 
@@ -124,44 +119,48 @@ const startServer = async () => {
 
 /**
  * Closes the server and database connections gracefully.
- * @returns {Promise<void>} Resolves when the server and databases are closed.
  */
-const closeServer = async () => {
-  console.log('\nStopping Server (closeServer)...');
-  // Close database connections
+const shutdownProcedure = async () => {
   try {
+    console.log('[DEBUG] Shutting down server and closing database connections...');
+    if (server) {
+      server.close(() => {
+        console.log('[DEBUG] HTTP server closed.');
+      });
+    }
+
     if (teamDBClient) {
       await teamDBClient.end();
-      console.log('Closed teamDBClient connection');
+      console.log('[DEBUG] Closed teamDBClient connection.');
+      await sleep(300);
     }
+
     if (playerDBClient) {
       await playerDBClient.end();
-      console.log('Closed playerDBClient connection');
+      console.log('[DEBUG] Closed playerDBClient connection.');
+      await sleep(300);
     }
   } catch (err) {
-    console.error('Error closing database connections:', err);
-  }
-
-  // Close the server if it exists
-  if (server) {
-    return new Promise<void>((resolve, reject) => {
-      server!.close((err) => {
-        if (err) {
-          console.error('Error closing server:', err);
-          return reject(err);
-        }
-        console.log('Server Stopped Successfully');
-        resolve();
-      });
-    });
+    console.error('[DEBUG] Error during shutdown:', err);
+  } finally {
+    console.log('[DEBUG] Shutdown complete.');
+    process.exit(0);
   }
 };
 
+/**
+ * Closes the server and database connections gracefully (external call).
+ * @returns {Promise<void>}
+ */
+const closeServer = async () => {
+  console.log('\n[DEBUG] closeServer() called...');
+  await shutdownProcedure();
+};
 
 // Start the server unless in a test environment
 if (process.env.NODE_ENV !== 'test') {
   startServer().catch(err => {
-    console.error('Failed to start the server:', err);
+    console.error('[DEBUG] Failed to start the server:', err);
     process.exit(1);
   });
 }
