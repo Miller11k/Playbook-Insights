@@ -1,0 +1,54 @@
+/* === In your component's CSS === */
+
+/* Make the container a positioning context and reserve space */
+.stats-form .player-search-input-container {
+  position: relative;   /* Allows absolute positioning of children */
+  padding-bottom: calc(1.2em + 8px); /* Creates space for the absolute status div */
+                                    /* Adjust '8px' for desired gap */
+  /* --- Keep other styles like margin-bottom: 0, display, flex-direction, etc. --- */
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 200px;
+  max-width: 350px;
+}
+
+/* Position the status div absolutely */
+.stats-form .player-search-input-container .search-status {
+  position: absolute; /* Takes it OUT of the normal layout flow */
+  bottom: 0;        /* Positions it at the bottom of the parent's padding area */
+  left: 10px;       /* Adjust horizontal position */
+  width: calc(100% - 20px); /* Adjust width */
+  height: 1.2em;    /* Keep height consistent */
+  margin: 0;        /* Override default/inline margin-top */
+  /* --- Keep other styles like font-size, colors, text-overflow --- */
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+}
+/* Keep hover/error states */
+.stats-form .player-search-input-container .search-status.searching { color: var(--text-muted); }
+.stats-form .player-search-input-container .search-status.error { color: #ff6b6b; }
+
+/* Also ensure the form itself still has align-items: flex-end */
+.stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  /* ... rest of form styles ... */
+}
+
+/* And ensure direct labels and button have margin-bottom: 0 */
+.stats-form > label {
+  margin-bottom: 0;
+}
+.stats-form .submit-button {
+   margin-bottom: 0;
+    /* Adjust height/padding if needed */
+   height: calc( (0.6rem * 2) + 1em + 2px); /* Approx input height */
+   padding-top: 0.6rem;
+   padding-bottom: 0.6rem;
+}

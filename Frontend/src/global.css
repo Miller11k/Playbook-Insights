@@ -1,0 +1,334 @@
+/* === global.css === */
+/* Using variables from your provided theme */
+:root {
+  --font-family: 'Poppins', sans-serif; /* Ensure Poppins is imported via HTML or CSS @import */
+  --bg-gradient-start: #1a1a2e;  /* Darker blue/purple */
+  --bg-gradient-mid: #16213e;   /* Dark blue */
+  --bg-gradient-end: #0f3460;    /* Deeper blue */
+  --neon-accent: #16c79a;   /* Teal/Aqua accent */
+  --text-color: #e4e6eb;    /* Light grey text */
+  --text-muted: #b0b3b8;   /* Muted grey */
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.2);
+  --input-focus-border: var(--neon-accent);
+  --card-bg: rgba(40, 40, 60, 0.5); /* Semi-transparent card background */
+  --link-hover: #58cced;
+  --transition-speed: 0.3s;
+  --navbar-height: 5rem; /* Define navbar height as variable */
+}
+
+/* Basic reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%; /* Crucial for full-height layouts */
+  width: 100%;
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background-color: var(--bg-gradient-start); /* Fallback background */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end));
+  background-size: 400% 400%;
+  z-index: -1;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* General container for centering page content below navbar */
+.stats-container {
+  width: 100%;
+  min-height: calc(100vh - var(--navbar-height)); /* Ensure it takes full height minus navbar */
+  padding-top: calc(var(--navbar-height) + 2rem); /* Space below navbar */
+  padding-bottom: 3rem; /* Space at the bottom */
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
+  box-sizing: border-box;
+}
+
+/* Headings */
+h2 {
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+h3 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+/* Links */
+a {
+  color: var(--neon-accent);
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+
+/* Buttons */
+button {
+    background-color: transparent;
+    color: var(--neon-accent);
+    border: 1px solid var(--neon-accent);
+    box-shadow: none;
+}
+button:hover {
+  background-color: rgba(22, 199, 154, 0.1); /* Light accent background */
+  color: var(--neon-accent);
+  transform: none;
+}
+button:disabled {
+    background-color: #555;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+/* Secondary button style (e.g., Add Player, Clear) */
+button.secondary {
+    background-color: transparent;
+    color: var(--neon-accent);
+    border: 1px solid var(--neon-accent);
+    box-shadow: none;
+}
+button.secondary:hover {
+    background-color: rgba(22, 199, 154, 0.1); /* Light accent background */
+    color: var(--neon-accent);
+    transform: none;
+}
+button.clear {
+    background: transparent;
+    color: #ff6b6b; /* Reddish for clear/delete */
+    padding: 0.2rem 0.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    box-shadow: none;
+}
+button.clear:hover {
+    color: #e03131;
+}
+
+
+/* Inputs & Selects */
+input[type="text"],
+input[type="number"],
+select {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  border: 1px solid var(--input-border);
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  min-width: 160px; /* Consistent min-width */
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 2px rgba(22, 199, 154, 0.3); /* Subtle glow */
+}
+select {
+    appearance: none; /* Remove default arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23e4e6eb' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 1em;
+    padding-right: 2.5rem; /* Space for arrow */
+}
+select option {
+    background-color: #2a2a3e; /* Dark background for options */
+    color: var(--text-color);
+}
+
+/* Error Message */
+.error-message {
+  color: #ff6b6b; /* Reddish color */
+  background-color: rgba(255, 107, 107, 0.1); /* Light red background */
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  width: 100%;
+  max-width: 600px; /* Limit width */
+}
+
+/* Loading Text */
+.loading-text {
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 1rem 0;
+}
+
+
+/* === PassingStats.css (or PlayerStats.css if shared) === */
+
+/* Container specific styles (if needed beyond .stats-container) */
+.player-stats-page-container { /* Renamed for clarity */
+  width: 100%; /* Take full width within parent */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Form specific layout */
+.player-stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start; /* Align items to the top */
+  justify-content: center;
+  gap: 1.5rem; /* Increased gap */
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--card-bg); /* Use card background */
+  border-radius: 8px;
+  width: 100%;
+  max-width: 900px; /* Limit form width */
+}
+
+.player-stats-form label {
+  display: flex;
+  flex-direction: column; /* Stack label text above input */
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem; /* Space below label text */
+}
+
+.player-stats-form .input-group {
+    display: flex;
+    align-items: center; /* Align input and clear button */
+}
+
+.player-stats-form input[type="text"] {
+    margin-right: 5px; /* Space before clear button */
+}
+
+
+/* Style for the player search input section */
+.player-search-input-container {
+  position: relative; /* Needed for absolute positioning of results */
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  display: flex; /* Use flex for label and input group */
+  flex-direction: column;
+}
+
+.search-status {
+    font-size: 0.8rem;
+    margin-left: 10px;
+    height: 1em; /* Reserve space */
+}
+.search-status.searching { color: var(--text-muted); }
+.search-status.error { color: #ff6b6b; }
+
+
+/* Search results list */
+.search-results-list {
+    position: absolute;
+    top: calc(100% + 4px); /* Position below the input with a small gap */
+    left: 0;
+    width: calc(100% + 10px); /* Match input width + clear button approx */
+    max-width: 300px; /* Prevent excessive width */
+    background-color: #33374a; /* Darker background */
+    border: 1px solid var(--input-border);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    text-align: left;
+}
+
+.search-results-list li {
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--input-border);
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.search-results-list li:last-child {
+    border-bottom: none;
+}
+
+.search-results-list li:hover {
+    background-color: rgba(22, 199, 154, 0.2); /* Accent hover */
+}
+
+
+/* Chart container */
+.chart-container {
+  width: 100%;
+  max-width: 850px; /* Max width for chart */
+  margin: 1rem auto 2rem auto; /* Center chart */
+  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Defensive section styling */
+.opponent-defensive-section {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 850px; /* Match chart width */
+  border: 1px solid var(--input-border);
+  padding: 2rem;
+  border-radius: 8px;
+  background-color: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.opponent-defensive-section .chart-container {
+    background-color: transparent; /* Remove double background */
+    box-shadow: none;
+    padding: 0;
+    margin-top: 1.5rem;
+}
+
+/* Specific button styles if needed */
+.toggle-defense-button { /* Example class for the green button */
+    /* Styles already defined in global button */
+    margin-top: 1rem; /* Add space above if needed */
+}
+

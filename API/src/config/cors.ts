@@ -25,9 +25,15 @@ import rateLimit from 'express-rate-limit';
  * @constant {Function}
  */
 const corsConfig = cors({
-  origin: '*', // Allow requests from any origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Authorization'], // Allowed request headers
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Authorization',
+    'x-entity-type',
+    'x-stats-type'
+  ],
 });
 
 const rateLimitValue = parseInt(process.env.RATE_LIMIT || '100', 10);

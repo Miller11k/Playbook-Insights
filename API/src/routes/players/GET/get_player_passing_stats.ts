@@ -3,9 +3,7 @@ import { printRouteHit, printRequestHeaders, printRequestParams, printRequestQue
 import { isValidPlayerID, isValidTeamID } from '../../../helpers/validateHelper.js';
 import { playerDBClient } from '../../../config/dbConfig.js';
 
-const router = Router();
-
-router.get('/', async (req: Request, res: Response) => {
+export async function getPlayerPassingStats(req: Request, res: Response): Promise<void> {
     printRouteHit("GET", "/player-passing-stats");
     printRequestParams(req.params);
     printRequestHeaders(req.headers);
@@ -70,7 +68,7 @@ router.get('/', async (req: Request, res: Response) => {
 
         // Construct the SQL query dynamically.
         const query = `
-            SELECT passing_stats
+            SELECT passing_stats, season, week, opponent_team
             FROM ${tableName}
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""}
             ;
@@ -83,11 +81,11 @@ router.get('/', async (req: Request, res: Response) => {
             return;
         }
 
-        res.status(200).json(result.rows.map(row => row.passing_stats));
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
+}
 
-export default router;
+export default getPlayerPassingStats;
