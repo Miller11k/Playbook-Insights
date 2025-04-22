@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import { printRouteHit, printRequestHeaders, printRequestParams, printRequestQuery } from '../../../helpers/routePrintHelper.js';
 import { isValidPlayerID, isValidTeamID } from '../../../helpers/validateHelper.js';
 import { playerDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
 
 export async function getPlayerPassingStats(req: Request, res: Response): Promise<void> {
     printRouteHit("GET", "/player-passing-stats");
@@ -75,13 +76,17 @@ export async function getPlayerPassingStats(req: Request, res: Response): Promis
         `;
 
         const result = await playerDBClient.query(query, values);
+        const filteredResult = filterNullValues(result.rows, "passing_stats");
 
-        if (result.rowCount === 0) {
+        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
+            res.status(204).json({ error: "All player passing stats found for specified criteria were null." });
+            return;
+        } else if (result.rows.length === 0) {
             res.status(404).json({ error: "No passing stats found for the specified criteria." });
             return;
         }
 
-        res.status(200).json(result.rows.map(row => row.passing_stats));
+        res.status(200).json(filteredResult.map(row => row.passing_stats));
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });

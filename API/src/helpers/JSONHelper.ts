@@ -52,6 +52,13 @@ export function stringToJSON(str: string): any {
     return JSON.parse(str);
 }
 
+
+export function filterNullValues<T, K extends keyof T>(arr: T[], key: K): T[] {
+    return arr.filter(row => row[key] !== null && row[key] !== "null");
+  }  
+  
+
+
 // Fuck it, we ball type shit below to fall back on if something goes wrong
 // Keeping exports grouped for easy fallback if needed
 // export { JSONToMap, mapToJSON, JSONToString, stringToJSON };

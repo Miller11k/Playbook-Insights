@@ -3,6 +3,7 @@ import { Request, Response, Router } from 'express';
 import { printRequestHeaders, printRequestParams, printRequestQuery, printRouteHit } from '../../../helpers/routePrintHelper.js';
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { teamDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
 
 /**
  * @route GET /defensive-stats
@@ -80,18 +81,23 @@ export async function getTeamDefensiveStats(req: Request, res: Response): Promis
 
         const query = `
             SELECT defensive_stats 
-            FROM ${tableName} 
+            FROM "${tableName}" 
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""};
         `;
 
         const result = await teamDBClient.query(query, values);
+        const filteredResult = filterNullValues(result.rows, "defensive_stats");
 
-        if (result.rowCount === 0) {
+
+        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
+            res.status(204).json({ error: "All team defensive stats found for specified criteria were null." });
+            return;
+        } else if (result.rows.length === 0) {
             res.status(404).json({ error: "No defensive stats found for the specified criteria." });
             return;
         }
 
-        res.status(200).json(result.rows.map(row => row.defensive_stats));
+        res.status(200).json(filteredResult.map(row => row.defensive_stats));
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });

@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import { printRouteHit, printRequestHeaders, printRequestParams, printRequestQuery } from '../../../helpers/routePrintHelper.js';
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { playerDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
 
 export async function getTeamRoster(req: Request, res: Response) {
     printRouteHit("GET", "/team-roster");
@@ -111,9 +112,10 @@ export async function getTeamRoster(req: Request, res: Response) {
             `;
             try {
                 // Use non-null assertion since we've already checked playerDBClient is not null.
-                const gameLogResult = await playerDBClient!.query(gameLogQuery, values);
-                if (gameLogResult.rowCount! > 0) {
-                    return row;
+                const result = await playerDBClient!.query(query, values);
+                const filteredResult = filterNullValues(result.rows, "game_result");
+                if (filteredResult.length > 0) {
+                    return filteredResult[0]; // Return the first matching row
                 } else {
                     return null;
                 }

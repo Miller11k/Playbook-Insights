@@ -2,6 +2,8 @@ import { Request, Response, Router } from 'express';
 import { printRouteHit, printRequestHeaders, printRequestParams, printRequestQuery } from '../../../helpers/routePrintHelper.js';
 import { isValidPlayerID, isValidTeamID } from '../../../helpers/validateHelper.js';
 import { playerDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
+
 
 export async function getPlayerExtraData(req: Request, res: Response): Promise<void> {
     printRouteHit("GET", "/player-extra-data");
@@ -77,14 +79,19 @@ export async function getPlayerExtraData(req: Request, res: Response): Promise<v
         `;
 
         const result = await playerDBClient.query(query, values);
+        const filteredResult = filterNullValues(result.rows, "extra_data");
 
-        if (result.rowCount === 0) {
+        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
+            res.status(204).json({ error: "All player extra data found for specified criteria were null." });
+            return;
+        } else if (filteredResult.length === 0) {
             res.status(404).json({ error: "No extra data found for the specified criteria." });
             return;
         }
 
         // Return an array of extra_data JSON objects.
-        res.status(200).json(result.rows.map(row => row.extra_data));
+        res.status(200).json(filteredResult.map(row => row.extra_data));
+
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
