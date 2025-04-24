@@ -10,8 +10,8 @@ Playbook Insights is an open-source NFL analytics and data visualization platfor
   1. Core player/team/game GET endpoints  
   2. Ingestion from NFL sources  
   3. React-based dashboard & filters  
-  4. User dashboards & favorites  
-  5. Advanced analytics & predictive models  
+  4. Web and Mobile User Experience
+  5. Advanced position based analytics 
 - **Competing**: NFL FastR, nflverse, SportsDataIO (closed)
 
 ## Features  
@@ -62,6 +62,7 @@ docker-compose up --build
 cd API
 npm install
 cp .env.example .env
+npm run build
 npm start
 
 # Aggregator
@@ -72,7 +73,7 @@ python scripts/ingest_data.py
 # Frontend
 cd ../Frontend
 npm install
-npm start
+npm run dev
 ```
 
 ## Example API Usage  
