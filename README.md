@@ -1,5 +1,5 @@
 # Playbook Insights  
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/playbook-insights/actions) ![License: MIT](https://img.shields.io/badge/License-MIT-blue) [![Docker](https://img.shields.io/badge/docker-ready-blue)]
+![License: MIT](https://img.shields.io/badge/License-MIT-blue) [![Docker](https://img.shields.io/badge/docker-ready-blue)]
 
 ## Overview  
 Playbook Insights is an open-source NFL analytics and data visualization platform. It provides fans, analysts, fantasy players, and developers with interactive charts, REST API GET endpoints, and historical game logs—all in one place.
