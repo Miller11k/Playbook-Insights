@@ -6,6 +6,9 @@ import { teamDBClient } from '../config/dbConfig.js';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
 
+import playerSearchRouter from './players/GET/get_player_names.js';
+import teamSearchRouter   from './teams/GET/get_team_names.js';
+
 import { getPlayerExtraData } from './players/GET/get_player_extra_data.js';
 import { getPlayerInfo } from './players/GET/get_player_info.js';
 import {getPlayerPassingStats} from './players/GET/get_player_passing_stats.js';
@@ -25,6 +28,12 @@ import {getSpecialTeamsStats} from './teams/GET/get_team_special_team_stats.js';
 
 // Create a new router instance to define and group related routes
 const router = Router();
+
+// 1) Player‐name search: GET /search?name=…
+router.use('/search', playerSearchRouter);
+
+// 2) Team‐name search: GET /search-team?query=…
+router.use('/search-team', teamSearchRouter);
 
 /**
  * Route handler for all data GET requests.
