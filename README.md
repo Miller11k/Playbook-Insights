@@ -12,7 +12,6 @@ Playbook Insights is an open-source NFL analytics and data visualization platfor
   3. React-based dashboard & filters  
   4. User dashboards & favorites  
   5. Advanced analytics & predictive models  
-  6. Community data uploads  
 - **Competing**: NFL FastR, nflverse, SportsDataIO (closed)
 
 ## Features  
