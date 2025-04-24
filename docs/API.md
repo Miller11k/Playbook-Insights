@@ -23,11 +23,11 @@ cd API
 npm install
 
 # 3. Copy example env and configure credentials
-cp .env.example .env
-# (edit .env with your database and port settings)
+touch .env
 
 # 4. Start the server
 npm start
+```
 
 ## Table of Contents
 1. [System Endpoints](#system-endpoints)  
