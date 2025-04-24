@@ -76,6 +76,17 @@ npm install
 npm run dev
 ```
 
+### Home Page
+<img width="1512" alt="Screenshot 2025-04-24 at 10 03 32 AM" src="https://github.com/user-attachments/assets/34fcb5a4-4447-429e-a92b-2666bbf4eb68" />
+
+### Example Player stats
+<img width="1512" alt="Screenshot 2025-04-24 at 10 05 13 AM" src="https://github.com/user-attachments/assets/bad88ac6-d59e-42a6-ac72-c4cea133203a" />
+
+### Example Team stats
+<img width="1512" alt="Screenshot 2025-04-24 at 10 05 42 AM" src="https://github.com/user-attachments/assets/3894671c-0103-4d50-b852-3c9c0f27045b" />
+
+
+
 ## Example API Usage  
 
 ```bash
