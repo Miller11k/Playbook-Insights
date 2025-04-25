@@ -1,11 +1,6 @@
-// src/routes/players/GET/get_player_names.ts
 import { Router, Request, Response } from 'express';
-// Adjust path to your actual helpers and config
-// ** FIX: Add .js extension for ES Module resolution **
 import { playerDBClient } from '../../../config/dbConfig.js';
 import { printRouteHit, printRequestHeaders, printRequestParams, printRequestQuery } from '../../../helpers/routePrintHelper.js';
-// Assuming validation/formatting helpers are not strictly needed for search, but import if used
-// import { isValidPlayerID, formatPlayerID } from '../../../helpers/formatHelper.js';
 
 const router = Router();
 
@@ -17,9 +12,8 @@ const router = Router();
  * @returns {Object} 400 - Error if 'name' query param is missing or too short.
  * @returns {Object} 500 - Internal server error.
  */
-// Add explicit types for req and res
-router.get('/', async (req: Request, res: Response): Promise<void> => { // Explicit return type Promise<void>
-    // Use the path where the route is mounted in MainRouter
+router.get('/', async (req: Request, res: Response): Promise<void> => { 
+
     printRouteHit("GET", "/search");
     printRequestParams(req.params);
     printRequestHeaders(req.headers);
@@ -42,7 +36,6 @@ router.get('/', async (req: Request, res: Response): Promise<void> => { // Expli
     }
 
     try {
-        // --- Raw SQL Query ---
         // Adjust JSON access (->>'display_name', ->>'name') and ILIKE based on your DB (PostgreSQL example)
         // Parameterizing LIKE requires concatenating '%' in the value array.
         const query = `
