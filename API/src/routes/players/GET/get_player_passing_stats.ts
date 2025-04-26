@@ -69,7 +69,7 @@ export async function getPlayerPassingStats(req: Request, res: Response): Promis
 
         // Construct the SQL query dynamically.
         const query = `
-            SELECT passing_stats
+            SELECT passing_stats, season, week, opponent_team
             FROM ${tableName}
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""}
             ;

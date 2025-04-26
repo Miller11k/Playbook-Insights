@@ -28,6 +28,7 @@ const router = Router();
  * 
  */
 
+// --- Other Routes ---
 router.use('/status', statusRoute);
 router.use("/routes", routesRoute);
 router.use("/test-db", testDBRoute);

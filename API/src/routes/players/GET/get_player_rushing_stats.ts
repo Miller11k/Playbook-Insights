@@ -70,7 +70,7 @@ export async function getPlayerRushingStats(req: Request, res: Response): Promis
 
         // Construct the SQL query dynamically.
         const query = `
-            SELECT rushing_stats
+            SELECT rushing_stats, season, week, opponent_team
             FROM ${tableName}
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""}
             ;

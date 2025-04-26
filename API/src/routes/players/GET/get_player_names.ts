@@ -36,6 +36,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     }
 
     try {
+        // --- Raw SQL Query ---
         // Adjust JSON access (->>'display_name', ->>'name') and ILIKE based on your DB (PostgreSQL example)
         // Parameterizing LIKE requires concatenating '%' in the value array.
         const query = `

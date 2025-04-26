@@ -86,7 +86,7 @@ export async function getTeamRoster(req: Request, res: Response) {
             const playerID = row.id;
             // Construct the player's game log table name and quote it to handle special characters.
             const rawTableName = `${playerID}_game_logs`;
-            const gameLogTable = `"${rawTableName}"`;
+            const gameLogTable = `${rawTableName}`;
 
             const filters: string[] = [];
             const values: any[] = [];
@@ -106,7 +106,7 @@ export async function getTeamRoster(req: Request, res: Response) {
 
             // Query the player's game log table to see if there is at least one matching record.
             const gameLogQuery = `
-                SELECT 1 FROM ${gameLogTable}
+                SELECT 1 FROM "${gameLogTable}"
                 ${filters.length ? "WHERE " + filters.join(" AND ") : ""}
                 LIMIT 1;
             `;
@@ -120,7 +120,7 @@ export async function getTeamRoster(req: Request, res: Response) {
                     return null;
                 }
             } catch (err) {
-                console.error(`Error querying game logs for player ${playerID}:`, err);
+                // console.error(`Error querying game logs for player ${playerID}:`, err);
                 return null;
             }
         }));

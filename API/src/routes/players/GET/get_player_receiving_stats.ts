@@ -70,7 +70,7 @@ export async function getPlayerReceivingStats(req: Request, res: Response): Prom
 
         // Construct the SQL query dynamically.
         const query = `
-            SELECT receiving_stats
+            SELECT receiving_stats, season, week, opponent_team
             FROM ${tableName}
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""}
             ;

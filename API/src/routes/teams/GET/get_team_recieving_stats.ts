@@ -29,7 +29,7 @@ export async function getTeamReceivingStats(req: Request, res: Response) {
             return;
         }
 
-        const tableName = `"${teamID}_game_logs"`;
+        const tableName = `${teamID}_game_logs`;
         console.log(`Using table: ${tableName}`);
 
         const filters: string[] = [];
@@ -74,7 +74,7 @@ export async function getTeamReceivingStats(req: Request, res: Response) {
                        'receiving_tds', offensive_stats->>'passing_tds'
                    ) AS aggregated_receiving_stats,
                    player_recieving_stats
-            FROM ${tableName}
+            FROM "${tableName}"
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""};
         `;
         console.log("Team Query:", teamQuery);

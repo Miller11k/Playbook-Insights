@@ -82,8 +82,8 @@ export async function getGameResults(req: Request, res: Response): Promise<void>
 
         // Set the query to fetch the game results
         const query = `
-            SELECT game_results 
-            FROM ${tableName} 
+            SELECT game_result
+            FROM "${tableName}" 
             ${filters.length ? "WHERE " + filters.join(" AND ") : ""};
         `;
 
