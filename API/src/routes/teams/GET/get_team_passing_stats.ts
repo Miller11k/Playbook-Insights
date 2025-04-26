@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import { printRequestHeaders, printRequestParams, printRequestQuery, printRouteHit } from '../../../helpers/routePrintHelper.js';
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { teamDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
 
 export async function getTeamPassingStats(req: Request, res: Response) {
     printRouteHit("GET", "/passing-stats");
@@ -79,15 +80,20 @@ export async function getTeamPassingStats(req: Request, res: Response) {
         console.log("Team Query:", teamQuery);
         console.log("Values:", values);
 
-        const teamResult = await teamDBClient.query(teamQuery, values);
-        console.log("Team Query result:", teamResult.rows);
+        const result = await teamDBClient.query(teamQuery, values);
+        const filteredResult = filterNullValues(result.rows, "aggregated_passing_stats");
 
-        if (teamResult.rowCount === 0) {
-            res.status(404).json({ error: "No passing stats found for the specified criteria." });
+        console.log("Team Query result:", filteredResult);
+
+        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
+            res.status(204).json({ error: "All team passing stats found for specified criteria were null." });
+            return;
+        } else if (result.rows.length === 0) {
+            res.status(404).json({ error: "No team passing stats found for the specified criteria." });
             return;
         }
 
-        res.status(200).json(teamResult.rows);
+        res.status(200).json(filteredResult);
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });

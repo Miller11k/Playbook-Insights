@@ -3,6 +3,7 @@ import { Request, Response, Router } from 'express';
 import { printRequestHeaders, printRequestParams, printRequestQuery, printRouteHit } from '../../../helpers/routePrintHelper.js';
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { teamDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
 
 
 /**
@@ -42,13 +43,18 @@ export async function getTeamInfo(req: Request, res: Response) {
 
         const query = "SELECT team_data FROM team_info WHERE team_abbr = $1;";
         const result = await teamDBClient.query(query, [teamID]);
+        const filteredResult = filterNullValues(result.rows, "team_data");
 
-        if (result.rowCount === 0) {
-            res.status(404).json({ error: "Team not found" });
+
+        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
+            res.status(204).json({ error: "All info found for team was null." });
+            return;  
+        } else if (result.rows.length === 0) {
+            res.status(404).json({ error: "Team not found." });
             return;
         }
 
-        res.status(200).json(result.rows[0].team_data);
+        res.status(200).json(filteredResult[0].team_data);
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });

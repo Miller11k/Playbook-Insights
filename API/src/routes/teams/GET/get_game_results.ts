@@ -3,6 +3,7 @@ import { Request, Response, Router } from 'express';
 import { printRequestHeaders, printRequestParams, printRequestQuery, printRouteHit } from '../../../helpers/routePrintHelper.js';
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { teamDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
 
 /**
  * Route handler for fetching game results.
@@ -87,14 +88,17 @@ export async function getGameResults(req: Request, res: Response): Promise<void>
         `;
 
         const result = await teamDBClient.query(query, values);
+        const filteredResult = filterNullValues(result.rows, "game_results");
 
-        // Return 404 if no results
-        if (result.rowCount === 0) {
+        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
+            res.status(204).json({ error: "All game results found for specified criteria were null." });
+            return;
+        } else if (result.rows.length === 0) {
             res.status(404).json({ error: "No game results found for the specified criteria." });
             return;
         }
 
-        res.status(200).json(result.rows.map(row => row.game_result));
+        res.status(200).json(filteredResult.map(row => row.game_results));
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });

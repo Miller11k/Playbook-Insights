@@ -1,7 +1,5 @@
-// routes/teams/search.js (or similar path)
 import { Router, Request, Response } from 'express';
-// Adjust path to your actual helpers and config
-import { teamDBClient } from '../../../config/dbConfig.js'; // Use team client
+import { teamDBClient } from '../../../config/dbConfig.js';
 import { printRouteHit, printRequestHeaders, printRequestParams, printRequestQuery } from '../../../helpers/routePrintHelper.js';
 
 const router = Router();
@@ -15,13 +13,12 @@ const router = Router();
  * @returns {Object} 500 - Internal server error.
  */
 router.get('/', async (req: Request, res: Response): Promise<void> => {
-    // Use a consistent base path if mounting this router under /api/teams
-    printRouteHit("GET", "/search-team"); // Or just "/search" if mounted at /api/teams
+    printRouteHit("GET", "/search-team");
     printRequestParams(req.params);
     printRequestHeaders(req.headers);
     printRequestQuery(req.query);
 
-    const searchTerm = req.query.query as string; // Use 'query' parameter
+    const searchTerm = req.query.query as string;
 
     if (!searchTerm || searchTerm.trim().length < 2) {
         res.status(400).json({ error: 'Search query must be at least 2 characters long.' });
@@ -35,7 +32,6 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     }
 
     try {
-        // --- Raw SQL Query ---
         // Search multiple fields within the team_data JSON (adjust paths and ILIKE for your DB)
         const query = `
             SELECT team_abbr, team_data

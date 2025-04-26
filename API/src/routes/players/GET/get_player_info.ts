@@ -4,6 +4,7 @@ import { printRequestHeaders, printRequestParams, printRequestQuery, printRouteH
 import { isValidPlayerID } from '../../../helpers/validateHelper.js';
 import { formatPlayerID } from '../../../helpers/formatHelper.js';
 import { playerDBClient, teamDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
 
 /**
  * @route GET /player-info
@@ -54,15 +55,20 @@ export async function getPlayerInfo(req: Request, res: Response): Promise<void> 
         }
         
         const query = "SELECT info FROM player_basic_info WHERE id = $1;";
-        const result = await playerDBClient.query(query, [playerID]);
+        const result = (await playerDBClient.query(query, [playerID]));
+        const filteredResult = filterNullValues(result.rows, "info");
 
-        if (result.rowCount === 0) {
-            res.status(404).json({ error: "Player not found" });
+        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
+            res.status(204).json({ error: "All info found for player was null." });
+            return;
+        } else if (filteredResult.length === 0) {
+            res.status(404).json({ error: "No player info found for the specified criteria." });
             return;
         }
 
         // Send the `info` JSON stored in the database
-        res.status(200).json(result.rows[0].info);
+        res.status(200).json(filteredResult[0].info);
+
 
     } catch (error) {
         console.error("Database query error:", error);

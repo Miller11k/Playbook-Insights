@@ -3,6 +3,7 @@ import { Request, Response, Router } from 'express';
 import { printRequestHeaders, printRequestParams, printRequestQuery, printRouteHit } from '../../../helpers/routePrintHelper.js';
 import { isValidTeamID } from '../../../helpers/validateHelper.js';
 import { teamDBClient } from '../../../config/dbConfig.js';
+import { filterNullValues } from '../../../helpers/JSONHelper.js';
 
 export async function getTeamRecord(req: Request, res: Response) {
     // Log the route hit and print request details
@@ -80,10 +81,13 @@ export async function getTeamRecord(req: Request, res: Response) {
 
         // Execute the query
         const result = await teamDBClient.query(query, values);
+        const filteredResult = filterNullValues(result.rows, "game_result");
 
-        // If no rows were found, return a 404 error
-        if (result.rowCount === 0) {
-            res.status(404).json({ error: "No game results found for the specified criteria." });
+        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
+            res.status(204).json({ error: "All game record info found for team were null." });
+            return;
+        } else if (result.rows.length === 0) {
+            res.status(404).json({ error: "No game record info found for the specified criteria." });
             return;
         }
 
@@ -94,7 +98,7 @@ export async function getTeamRecord(req: Request, res: Response) {
         let gamesCounted = 0;
 
         // Process each game result to calculate the record
-        for (const row of result.rows) {
+        for (const row of filteredResult) {
             const gameResult = row.game_result;
             // Skip BYE weeks since there is no game played
             if (gameResult === "BYE") {
