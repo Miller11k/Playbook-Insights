@@ -135,7 +135,7 @@ const getProperty = (obj: any, path: string): any => {
 
 // --- Constants ---
 // Base URL for API calls, configured via environment or default empty
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 console.log('Using API Base URL:', API_BASE_URL);
 
 // List of NFL teams for defensive opponent dropdown
