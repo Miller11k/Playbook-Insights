@@ -7,6 +7,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 const app = express();
 
+// Only trust proxy if running in production (Docker, Cloudflare, etc.)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // trust first proxy
+}
+
 /**
  * Tracks the number of active connections to the server.
  * @type {number}
