@@ -13,6 +13,9 @@ import testDBRoute from './other/test-db.js';
 import getInfoRoutes from './get_info.js';
 import getStatsRoute from './data/GET/get_stats.js';
 
+import getplayerNames from './players/GET/get_player_names.js';
+import getTeamNames from './teams/GET/get_team_names.js';
+
 
 // Create a router instance to group and manage related user routes
 const router = Router();
@@ -35,6 +38,9 @@ router.use("/test-db", testDBRoute);
 
 router.use("/", getInfoRoutes);
 router.use("/stats", getStatsRoute);
+
+router.use("/search", getplayerNames);
+router.use("/search-team", getTeamNames);
 
 /**
  * Exports the configured Express router for use in the main application.

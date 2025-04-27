@@ -1,0 +1,3 @@
+CREATE DATABASE playbook_insights_player_db;
+
+CREATE DATABASE playbook_insights_team_db;

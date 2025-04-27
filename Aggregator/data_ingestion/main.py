@@ -24,7 +24,7 @@ def main() -> None:
         current_year = datetime.now().year
 
         if is_player_database_populated(player_session) or is_team_database_populated(team_session):
-            print("[ERROR] Database is already populated.")
+            print("[INFO] Databases detected as already populated. Starting data update...")
             update_years = list(range(2023, current_year))
             
             update_player_game_logs(player_engine, update_years)
@@ -33,7 +33,7 @@ def main() -> None:
             print("[DEBUG] Data update complete.")
             return 
         
-        
+        print("[INFO] No existing data found. Starting full data ingestion...")
         years = list(range(2000, current_year))
         ingest_player_data(years=years, engine=player_engine)
         ingest_team_data(years=years, engine=team_engine)
