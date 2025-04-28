@@ -1,54 +1,100 @@
-/* === In your component's CSS === */
+/* Container for the form */
+.stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+}
 
-/* Make the container a positioning context and reserve space */
+/* Make the search field’s wrapper a positioning context */
 .stats-form .player-search-input-container {
-  position: relative;   /* Allows absolute positioning of children */
-  padding-bottom: calc(1.2em + 8px); /* Creates space for the absolute status div */
-                                    /* Adjust '8px' for desired gap */
-  /* --- Keep other styles like margin-bottom: 0, display, flex-direction, etc. --- */
-  margin-bottom: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   min-width: 200px;
   max-width: 350px;
+  padding-bottom: calc(1.2em + 8px); /* reserve space for the status line */
 }
 
-/* Position the status div absolutely */
+/* Input + clear “X” button side by side */
+.stats-form .player-search-input-container .input-group {
+  display: flex;
+  align-items: center;
+}
+.stats-form .player-search-input-container .input-group input {
+  flex-grow: 1;
+  margin-right: 0.5rem;
+}
+.stats-form .player-search-input-container .input-group button.clear {
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+
+/* Inline status messages (“Searching…”, errors) */
 .stats-form .player-search-input-container .search-status {
-  position: absolute; /* Takes it OUT of the normal layout flow */
-  bottom: 0;        /* Positions it at the bottom of the parent's padding area */
-  left: 10px;       /* Adjust horizontal position */
-  width: calc(100% - 20px); /* Adjust width */
-  height: 1.2em;    /* Keep height consistent */
-  margin: 0;        /* Override default/inline margin-top */
-  /* --- Keep other styles like font-size, colors, text-overflow --- */
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  width: calc(100% - 20px);
+  height: 1.2em;
   font-size: 0.8rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin: 0;
+}
+.stats-form .player-search-input-container .search-status.searching {
   color: var(--text-muted);
 }
-/* Keep hover/error states */
-.stats-form .player-search-input-container .search-status.searching { color: var(--text-muted); }
-.stats-form .player-search-input-container .search-status.error { color: #ff6b6b; }
-
-/* Also ensure the form itself still has align-items: flex-end */
-.stats-form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  /* ... rest of form styles ... */
+.stats-form .player-search-input-container .search-status.error {
+  color: #ff6b6b;
 }
 
-/* And ensure direct labels and button have margin-bottom: 0 */
-.stats-form > label {
-  margin-bottom: 0;
+/* The autocomplete dropdown itself */
+.stats-form .player-search-input-container .search-results-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-width: 350px;
+  background-color: #33374a;
+  border: 1px solid var(--input-border);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  border-radius: 6px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
+.stats-form .player-search-input-container .search-results-list li {
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--input-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stats-form .player-search-input-container .search-results-list li:last-child {
+  border-bottom: none;
+}
+.stats-form .player-search-input-container .search-results-list li:hover {
+  background-color: rgba(22, 199, 154, 0.2);
+}
+
+/* Keep your submit button aligned */
 .stats-form .submit-button {
-   margin-bottom: 0;
-    /* Adjust height/padding if needed */
-   height: calc( (0.6rem * 2) + 1em + 2px); /* Approx input height */
-   padding-top: 0.6rem;
-   padding-bottom: 0.6rem;
+  margin-bottom: 0;
+  height: calc((0.6rem * 2) + 1em + 2px);
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
 }

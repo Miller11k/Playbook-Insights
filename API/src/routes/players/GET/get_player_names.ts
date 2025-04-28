@@ -43,10 +43,20 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
             SELECT id, info
             FROM player_basic_info
             WHERE
-                info->>'display_name' ILIKE $1 OR info->>'name' ILIKE $1
+                info->>'display_name' ILIKE $1
+                OR info->>'name' ILIKE $1
+            ORDER BY
+                CASE
+                    WHEN LOWER(info->>'display_name') = LOWER($2) THEN 1
+                    WHEN LOWER(info->>'name') = LOWER($2) THEN 2
+                    ELSE 3
+                END,
+                id DESC,
+                info->>'display_name'
             LIMIT 20;
         `;
-        const values = [`%${searchTerm}%`]; // Add wildcards for LIKE comparison
+        const values = [`%${searchTerm}%`, searchTerm];
+
 
         const result = await playerDBClient.query(query, values);
 

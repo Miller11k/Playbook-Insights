@@ -3,6 +3,11 @@ import axios, { AxiosError } from 'axios';
 import Chart from '../../components/charts/Chart'; 
 import './TeamStats.css';
 import { debounce } from 'lodash';
+// import StatsTable from '../../components/StatsTable';
+import StatsTableWithChart from '../../components/StatsTableWithChart';
+import { Helmet } from 'react-helmet';
+
+
 
 // --- Interfaces ---
 // Interface for team search result structure
@@ -85,7 +90,7 @@ const categoryOptions: TeamStatConfig[] = [
 ];
 
 // --- Constants ---
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 console.log('Using API Base URL:', API_BASE_URL);
 
 // --- Component ---
@@ -252,6 +257,12 @@ const TeamStats: React.FC = () => {
 
   // --- Render ---
   return (
+    <>
+    <Helmet>
+      <title>Team Stats | Playbook Insights</title>
+    </Helmet>
+
+    <h2>Team Stats</h2>
     <div className="stats-container">
       <h2>Team {selectedCategoryConfig.label}</h2>
 
@@ -323,7 +334,11 @@ const TeamStats: React.FC = () => {
           <Chart data={chartData} />
         </div>
       )}
+
+      {/* ↓ Detailed per‐game breakdown for the selected team */}
+      {rawData.length > 0 && <StatsTableWithChart data={rawData} />}
     </div>
+    </>
   );
 };
 

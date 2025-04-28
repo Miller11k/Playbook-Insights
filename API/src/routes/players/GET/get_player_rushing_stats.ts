@@ -88,7 +88,7 @@ export async function getPlayerRushingStats(req: Request, res: Response): Promis
         }
 
         // Return an array of rushing_stats JSON objects.
-        res.status(200).json(filteredResult.map(row => row.rushing_stats));
+        res.status(200).json(filteredResult);
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });
