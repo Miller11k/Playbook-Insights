@@ -1,0 +1,100 @@
+/* Container for the form */
+.stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+}
+
+/* Make the search field’s wrapper a positioning context */
+.stats-form .player-search-input-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 200px;
+  max-width: 350px;
+  padding-bottom: calc(1.2em + 8px); /* reserve space for the status line */
+}
+
+/* Input + clear “X” button side by side */
+.stats-form .player-search-input-container .input-group {
+  display: flex;
+  align-items: center;
+}
+.stats-form .player-search-input-container .input-group input {
+  flex-grow: 1;
+  margin-right: 0.5rem;
+}
+.stats-form .player-search-input-container .input-group button.clear {
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+
+/* Inline status messages (“Searching…”, errors) */
+.stats-form .player-search-input-container .search-status {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  width: calc(100% - 20px);
+  height: 1.2em;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+.stats-form .player-search-input-container .search-status.searching {
+  color: var(--text-muted);
+}
+.stats-form .player-search-input-container .search-status.error {
+  color: #ff6b6b;
+}
+
+/* The autocomplete dropdown itself */
+.stats-form .player-search-input-container .search-results-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-width: 350px;
+  background-color: #33374a;
+  border: 1px solid var(--input-border);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  border-radius: 6px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.stats-form .player-search-input-container .search-results-list li {
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--input-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stats-form .player-search-input-container .search-results-list li:last-child {
+  border-bottom: none;
+}
+.stats-form .player-search-input-container .search-results-list li:hover {
+  background-color: rgba(22, 199, 154, 0.2);
+}
+
+/* Keep your submit button aligned */
+.stats-form .submit-button {
+  margin-bottom: 0;
+  height: calc((0.6rem * 2) + 1em + 2px);
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+}

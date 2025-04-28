@@ -1,0 +1,81 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [develop, develop/*]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  # docker-tests:
+  #   name: Dockerization Tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Install Docker Compose
+  #       run: |
+  #         sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  #         sudo chmod +x /usr/local/bin/docker-compose
+  #         docker-compose --version    
+
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Build and Run Docker Compose
+  #       run: |
+  #         docker-compose up -d --build
+  #         echo "Waiting for services to initialize..."
+  #         sleep 30  # Increased wait time for service initialization
+
+  #     - name: Check Running Containers
+  #       run: docker ps -a
+
+  #     - name: Test API Container Health
+  #       run: |
+  #         echo "Testing API endpoint..."
+  #         curl --fail http://localhost:3000/api/status || exit 1
+
+  #     - name: Test Frontend Response
+  #       run: |
+  #         echo "Testing frontend response..."
+  #         curl --fail http://localhost:5080/ || exit 1
+
+  #     - name: Stop and Remove Containers
+  #       run: docker-compose down
+
+  # frontend-checks:
+  #   name: Lint Frontend
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: Frontend
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+  #   - name: Set up Node.js
+  #     uses: actions/setup-node@v4
+  #     with:
+  #       node-version: '20'
+  #   - name: Install dependencies
+  #     run: npm install
+  #   - name: Run ESLint
+  #     run: npx eslint src/
+
+  backend-checks:
+    name: Test API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: API
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: ''
+      - name: Install dependencies
+        run: npm install
+      - name: Run Jest tests
+        run: npm test

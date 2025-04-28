@@ -1,0 +1,42 @@
+.home-container {
+  position: fixed;           /* Use fixed positioning */
+  top: 6rem;                 /* Start right below the navbar */
+  left: 0;
+  right: 0;
+  bottom: 0;                 /* Fill until the bottom of the viewport */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* Vertical centering */
+  align-items: center;       /* Horizontal centering */
+  text-align: center;        /* Center text inside child elements */
+  padding: 0 1rem;           /* Some side padding for mobile */
+  box-sizing: border-box;
+  animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-title {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.home-subtitle {
+  font-size: 1.5rem;
+  max-width: 800px;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  color: #f0f0f0;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        VITE_API_URL: http://localhost:5080/api
+    volumes:
+      - ./Database:/docker-entrypoint-database
+    container_name: playbook-insights
+    ports:
+      - "5080:5080"   # Frontend
+      - "3000:3000"   # API
+      - "5000:5000"   # Aggregator or other services
+      - "5432:5432"   # PostgreSQL (optional)
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      PLAYER_DB_NAME: playbook_insights_player_db
+      TEAM_DB_NAME: playbook_insights_team_db
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      PLAYER_DATABASE_URL: postgresql://myuser:mypassword@localhost:5432/playbook_insights_player_db
+      TEAM_DATABASE_URL: postgresql://myuser:mypassword@localhost:5432/playbook_insights_team_db
+      DB_SERVER_HOSTNAME: localhost
+      DB_SERVER_PORT: 5432
+      DB_SERVER_USERNAME: myuser
+      DB_SERVER_PASSWORD: mypassword
+      API_PORT: 3000
+      NODE_ENV: production
+    restart: always

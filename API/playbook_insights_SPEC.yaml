@@ -1,0 +1,667 @@
+openapi: 3.0.3
+info:
+  title: Playbook Insights API
+  description: >
+    API for Playbook Insights – a comprehensive NFL analytics platform that retrieves,
+    filters, modifies, and deletes NFL data while also supporting user management operations.
+    The platform serves fans, analysts, and coaches through a web-based interface and integrates
+    live data from the NFL Data Library, cloud services, and a robust database.
+  version: 1.0.0
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/purdueuniversity/49595O/1.0.0
+  - url: https://playbookinsights.example.com/api  # Replace with the proper production URL
+tags:
+  - name: System
+    description: Endpoints related to system health and route listings.
+  - name: Defense
+    description: Endpoints for defensive performance analytics.
+  - name: Players
+    description: Endpoints for player statistics management.
+  - name: Teams
+    description: Endpoints for team statistics management.
+  - name: Games
+    description: Endpoints for game statistics management.
+  - name: Users
+    description: Endpoints for user management and authentication.
+paths:
+  /status:
+    get:
+      summary: Get API status
+      description: Returns an HTML page indicating that the API is running.
+      operationId: getStatus
+      tags:
+        - System
+      responses:
+        '200':
+          description: HTML response indicating the API is operational.
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "<!DOCTYPE html><html lang='en'><head><title>API Status</title></head><body><h1>API IS UP</h1><p>Playbook Insights is running smoothly 🚀</p></body></html>"
+
+  /routes:
+    get:
+      summary: Get available routes
+      description: Returns a list of all available API routes and their supported methods.
+      operationId: getRoutes
+      tags:
+        - System
+      responses:
+        '200':
+          description: JSON object listing available routes and methods.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        route:
+                          type: string
+                        methods:
+                          type: array
+                          items:
+                            type: string
+
+  /defense/performance:
+    get:
+      summary: Get defensive performance
+      description: Retrieve defensive statistics against a specified position over a given number of games.
+      operationId: getDefensePerformance
+      tags:
+        - Defense
+      parameters:
+        - name: team_id
+          in: query
+          schema:
+            type: string
+          description: Unique identifier for the team.
+        - name: position
+          in: query
+          schema:
+            type: string
+          description: The defensive position to filter by.
+        - name: games
+          in: query
+          schema:
+            type: integer
+          description: The number of games to consider.
+      responses:
+        '200':
+          description: Defensive performance data returned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /players/{player_id}:
+    parameters:
+      - name: player_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Unique identifier for a player.
+    get:
+      summary: Get player statistics
+      description: Retrieve detailed statistics for a specific player. Optional filters include season, week, team, and position.
+      operationId: getPlayerStats
+      tags:
+        - Players
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: integer
+          description: Season year.
+        - name: week
+          in: query
+          schema:
+            type: integer
+          description: Week number within the season.
+        - name: team
+          in: query
+          schema:
+            type: string
+          description: Team name or abbreviation.
+        - name: position
+          in: query
+          schema:
+            type: string
+          description: Player position.
+      responses:
+        '200':
+          description: Player statistics returned successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      summary: Add new player statistics
+      description: Create a new player statistics entry.
+      operationId: addPlayerStats
+      tags:
+        - Players
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON object containing player statistics data.
+      responses:
+        '201':
+          description: Player added successfully.
+    put:
+      summary: Update player statistics
+      description: Update statistics for an existing player.
+      operationId: updatePlayerStats
+      tags:
+        - Players
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON object containing updated player statistics.
+      responses:
+        '200':
+          description: Player updated successfully.
+    delete:
+      summary: Delete a player entry
+      description: Remove a player's statistics entry from the database.
+      operationId: deletePlayerStats
+      tags:
+        - Players
+      responses:
+        '200':
+          description: Player deleted successfully.
+
+  /teams/{team_id}:
+    parameters:
+      - name: team_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Unique identifier for a team.
+    get:
+      summary: Get team statistics
+      description: Retrieve team statistics for a given season.
+      operationId: getTeamStats
+      tags:
+        - Teams
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: integer
+          description: Season year.
+      responses:
+        '200':
+          description: Team statistics returned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      summary: Add new team statistics
+      description: Create a new team statistics entry.
+      operationId: addTeamStats
+      tags:
+        - Teams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON object containing team statistics data.
+      responses:
+        '201':
+          description: Team added successfully.
+    put:
+      summary: Update team statistics
+      description: Update an existing team's statistics.
+      operationId: updateTeamStats
+      tags:
+        - Teams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON object containing updated team statistics.
+      responses:
+        '200':
+          description: Team updated successfully.
+    delete:
+      summary: Delete a team entry
+      description: Remove a team's statistics entry.
+      operationId: deleteTeamStats
+      tags:
+        - Teams
+      responses:
+        '200':
+          description: Team deleted successfully.
+
+  /games/{game_id}:
+    parameters:
+      - name: game_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Unique identifier for a game.
+    get:
+      summary: Get game statistics
+      description: Retrieve game statistics filtered by season, week, team, or opponent.
+      operationId: getGameStats
+      tags:
+        - Games
+      parameters:
+        - name: season
+          in: query
+          schema:
+            type: integer
+          description: Season year.
+        - name: week
+          in: query
+          schema:
+            type: integer
+          description: Week number.
+        - name: team
+          in: query
+          schema:
+            type: string
+          description: Team name or abbreviation.
+        - name: opponent
+          in: query
+          schema:
+            type: string
+          description: Opponent team name or abbreviation.
+      responses:
+        '200':
+          description: Game statistics returned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      summary: Add new game record
+      description: Create a new game record.
+      operationId: addGameRecord
+      tags:
+        - Games
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON object containing new game record data.
+      responses:
+        '201':
+          description: Game added successfully.
+    put:
+      summary: Update game record
+      description: Update an existing game record.
+      operationId: updateGameRecord
+      tags:
+        - Games
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON object containing updated game record data.
+      responses:
+        '200':
+          description: Game updated successfully.
+    delete:
+      summary: Delete a game record
+      description: Remove a game record from the database.
+      operationId: deleteGameRecord
+      tags:
+        - Games
+      responses:
+        '200':
+          description: Game deleted successfully.
+
+  # User Management Endpoints
+  /users/change-password:
+    post:
+      summary: Change user's password
+      description: Change the password for an authenticated user.
+      operationId: changePassword
+      tags:
+        - Users
+      parameters:
+        - in: header
+          name: x-authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newPassword:
+                  type: string
+                  description: The new password to set.
+      responses:
+        '200':
+          description: Password changed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Password changed successfully"
+        '400':
+          description: Bad request.
+        '403':
+          description: Authentication failed.
+        '404':
+          description: User not found.
+        '500':
+          description: Internal server error.
+
+  /users/change-username:
+    post:
+      summary: Change user's username
+      description: Update the username for an authenticated user.
+      operationId: changeUsername
+      tags:
+        - Users
+      parameters:
+        - in: header
+          name: x-authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newUsername:
+                  type: string
+                  description: The new username to set.
+      responses:
+        '200':
+          description: Username updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Username updated successfully"
+        '400':
+          description: Invalid or unchanged username.
+        '403':
+          description: Authentication failed.
+        '404':
+          description: User not found or update failed.
+        '405':
+          description: Username already in use.
+        '500':
+          description: Internal server error.
+
+  /users/clear-tokens:
+    post:
+      summary: Clear all session tokens for a specific user
+      description: Clears all session tokens for the given user.
+      operationId: clearTokens
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - token
+              properties:
+                username:
+                  type: string
+                  description: Username whose tokens will be cleared.
+                token:
+                  type: string
+                  description: Session token for authentication.
+      responses:
+        '200':
+          description: Tokens cleared successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Tokens cleared successfully"
+        '400':
+          description: Bad request.
+        '401':
+          description: Invalid token.
+        '404':
+          description: User not found.
+        '500':
+          description: Internal server error.
+
+  /users/delete-token:
+    delete:
+      summary: Delete a specific session token for a user
+      description: Deletes a specified token from a user's token list.
+      operationId: deleteToken
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Username of the user.
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Token to be removed.
+      responses:
+        '200':
+          description: Token deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Token deleted successfully"
+        '400':
+          description: Bad request.
+        '404':
+          description: Token not found or user does not exist.
+        '500':
+          description: Internal server error.
+
+  /users/create-user:
+    post:
+      summary: Create a new user
+      description: Register a new user with the required details.
+      operationId: createUser
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - username
+                - plaintext_password
+                - is_admin
+              properties:
+                first_name:
+                  type: string
+                  description: First name of the user.
+                last_name:
+                  type: string
+                  description: Last name of the user.
+                username:
+                  type: string
+                  description: Username for the account.
+                plaintext_password:
+                  type: string
+                  description: Plaintext password for the account.
+                is_admin:
+                  type: boolean
+                  description: Indicates if the user has administrative privileges.
+      responses:
+        '200':
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '400':
+          description: Username already in use.
+        '500':
+          description: Internal server error.
+
+  /users/details:
+    post:
+      summary: Retrieve user details by authentication token
+      description: Retrieves user information based on a provided authentication token.
+      operationId: retrieveUserDetails
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  description: The authentication token (Bearer <JWT>).
+      responses:
+        '200':
+          description: User details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  firstName:
+                    type: string
+                    example: "John"
+                  lastName:
+                    type: string
+                    example: "Doe"
+                  username:
+                    type: string
+                    example: "johndoe"
+                  isAdmin:
+                    type: boolean
+                    example: false
+        '400':
+          description: Token not provided.
+        '401':
+          description: Invalid token.
+        '500':
+          description: Internal server error.
+
+  /users/login:
+    post:
+      summary: User login
+      description: Authenticate a user and return an access token.
+      operationId: loginUser
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: Username for authentication.
+                password:
+                  type: string
+                  description: Password for authentication.
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    example: "bearer <JWT>"
+        '400':
+          description: Username and password not provided.
+        '401':
+          description: Invalid credentials.
+        '500':
+          description: Internal server error.

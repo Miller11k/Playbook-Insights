@@ -1,0 +1,89 @@
+/* === In your component's CSS (e.g., TeamStats.css or PlayerStats.css) === */
+
+/* Apply to the main form */
+.stats-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end; /* Align bottom edges of direct children */
+  justify-content: center;
+  gap: 1.5rem;
+  /* ... other form styles ... */
+  /* Ensure no residual padding/margin interferes */
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Target direct label children (for dropdowns/simple inputs) */
+.stats-form > label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 0; /* CRUCIAL for flex-end alignment */
+  /* ... other label styles ... */
+}
+/* Ensure inputs/selects inside direct labels have consistent spacing */
+.stats-form > label > input,
+.stats-form > label > select {
+  margin-top: 0.5rem; /* Space between label text and control */
+}
+
+
+/* Target the container for the search input specifically */
+.stats-form .player-search-input-container {
+  position: relative;   /* Needed for positioning .search-status absolutely */
+  margin-bottom: 0;     /* CRUCIAL for flex-end alignment */
+  display: flex;
+  flex-direction: column;
+  /* Reserve space at the bottom for the absolutely positioned status */
+  /* Adjust calc based on .search-status height + desired gap */
+  padding-bottom: calc(1.2em + 8px);
+  /* Add other styles like flex-grow, width as needed */
+  flex-grow: 1;
+  min-width: 200px;
+  max-width: 350px;
+}
+
+/* Label text inside the search container */
+.stats-form .player-search-input-container > label {
+   margin-bottom: 0; /* Consistent label styling */
+   /* Add other label styles if needed */
+}
+
+/* Input group (input + clear button) inside search container */
+.stats-form .player-search-input-container .input-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.5rem; /* Consistent space below label text */
+}
+.stats-form .player-search-input-container .input-group input {
+   flex-grow: 1;
+   margin-right: 5px; /* Space for clear button */
+}
+
+/* The key fix: Position the search status absolutely */
+.stats-form .player-search-input-container .search-status {
+  position: absolute; /* Removes element from normal layout flow */
+  bottom: 0;        /* Positions it at the bottom of the reserved padding space */
+  left: 10px;       /* Give it some horizontal position */
+  width: calc(100% - 20px); /* Adjust width */
+  height: 1.2em;    /* Should match reserved space calculation */
+  font-size: 0.8rem; /* Match definition */
+  margin: 0;        /* Reset margins */
+  /* Optional: Add styling for visibility if needed */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stats-form .player-search-input-container .search-status.searching { color: var(--text-muted); }
+.stats-form .player-search-input-container .search-status.error { color: #ff6b6b; }
+
+
+/* Ensure submit button also aligns correctly */
+.stats-form .submit-button {
+  margin-bottom: 0; /* CRUCIAL for flex-end alignment */
+  /* Adjust height/padding to visually match input height if necessary */
+  height: calc( (0.6rem * 2) + 1em + 2px); /* Example */
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+}
