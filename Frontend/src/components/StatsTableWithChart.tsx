@@ -27,6 +27,10 @@ const STAT_DEFINITIONS: Record<string, { abbr: string; name: string; description
   receiving_2pt_conversions:   { abbr: '2PC', name: '2-Pt Rec',            description: 'Two-point reception conversions' },
   receiving_fumbles:           { abbr: 'RFM', name: 'Receiving Fumbles',   description: 'Number of times fumbling the ball after receiving it' },
   receiving_fumbles_lost:      { abbr: 'RFML', name: 'Receiving Fumbles',   description: 'Number of times fumbling the ball after receiving it and the ball being picked up' },
+  interceptions:               { abbr: 'INT', name: 'Interceptions',      description: 'Number of interceptions' },
+  wr_yards:                    { abbr: 'WYD', name: 'WR Yards',            description: 'Yards gained by receptions for a wide receiver' },
+  te_yards:                    { abbr: 'TYD', name: 'TE Yards',            description: 'Yards gained by receptions for a tight end' },
+  rb_yards:                    { abbr: 'RYD', name: 'RB Yards',            description: 'Yards gained by receptions for a running back' },
 
   // Rushing
   carries:                     { abbr: 'CAR', name: 'Carries',            description: 'Number of rushing attempts' },
@@ -54,7 +58,10 @@ const STAT_DEFINITIONS: Record<string, { abbr: string; name: string; description
   attempts:                    { abbr: 'ATT',  name: 'Attempts',                        description: 'Number of attempted passes'},
   passing_yards:               { abbr: 'PYD',  name: 'Passing Yards',                   description: 'Number of passing yards'},
   passing_tds:                 { abbr: 'PTD',  name: 'Passing Touchdowns',              description: 'Number of passing touchdowns'},
-
+  sacks:                       { abbr: 'SCK',  name: 'Sacks',                          description: 'Times quarterback was sacked'},
+  sack_yards:                  { abbr: 'SKY',  name: 'Sack Yards',                      description: 'Yards lost due to sacks'},
+  sack_fumbles:                { abbr: 'FUM',  name: 'Sack Fumbles',                    description: 'Fumbles on sacks'},
+  sack_fumbles_lost:           { abbr: 'FL',   name: 'Fumbles Lost',                   description: 'Fumbles lost after sacks'},
 }; 
 
 const StatsTableWithChart: React.FC<Props> = ({ data }) => {
@@ -62,84 +69,87 @@ const StatsTableWithChart: React.FC<Props> = ({ data }) => {
   const [filterSeason, setFilterSeason] = useState<number | ''>('');
   const [filterWeek, setFilterWeek] = useState<number | ''>('');
 
-  // 1) Flatten nested JSON objects
+  // 1) Flatten nested JSON
   const rows = useMemo(
-    () => data.map(row => {
-      const flat: Record<string, any> = {};
-      Object.entries(row).forEach(([k, v]) => {
-        if (v && typeof v === 'object' && !Array.isArray(v)) {
-          Object.entries(v).forEach(([subk, subv]) => flat[subk] = subv);
-        } else {
-          flat[k] = v;
-        }
-      });
-      return flat;
-    }),
+    () =>
+      data.map(row => {
+        const flat: Record<string, any> = {};
+        Object.entries(row).forEach(([k, v]) => {
+          if (v && typeof v === 'object' && !Array.isArray(v)) {
+            Object.entries(v).forEach(([subk, subv]) => (flat[subk] = subv));
+          } else {
+            flat[k] = v;
+          }
+        });
+        return flat;
+      }),
     [data]
   );
   if (!rows.length) return null;
 
-  // 2) Derive all column keys
+  // 2) Derive keys, exclude unwanted
   const allKeys = useMemo(() => {
     const keys = new Set<string>();
-    ['season', 'week', 'opponent_team'].forEach(k => rows[0][k] !== undefined && keys.add(k));
+    ['season', 'week', 'opponent_team'].forEach(k => rows[0][k] != null && keys.add(k));
     Object.keys(rows[0]).forEach(k => keys.add(k));
+    keys.delete('player_passing_stats');
+    keys.delete('player_rushing_stats');
     return Array.from(keys);
   }, [rows]);
 
-  // 2a) Filter out both unwanted columns
-  const displayKeys = useMemo(
-    () => allKeys.filter(key => key !== 'player_passing_stats' && key !== 'player_rushing_stats'),
-    [allKeys]
-  );
+  // 3) Detect player context
+  const isPlayer = rows[0].player_id != null;
 
-  // 3) Unique seasons & weeks for filters
+  // 4) Filters & chart data
   const seasons = useMemo(
-    () => Array.from(new Set(rows.map(r => r.season))).sort((a, b) => (b as number) - (a as number)),
+    () => Array.from(new Set(rows.map(r => r.season))).sort((a, b) => b - a),
     [rows]
   );
   const weeks = useMemo(
-    () => Array.from(new Set(rows.map(r => r.week))).sort((a, b) => (a as number) - (b as number)),
+    () => Array.from(new Set(rows.map(r => r.week))).sort((a, b) => a - b),
     [rows]
   );
-
-  // 4) Filter rows for chart
   const chartRows = useMemo(
-    () => rows.filter(r =>
-      (filterSeason === '' || r.season === filterSeason) &&
-      (filterWeek   === '' || r.week   === filterWeek)
-    ),
+    () =>
+      rows.filter(
+        r =>
+          (filterSeason === '' || r.season === filterSeason) &&
+          (filterWeek === '' || r.week === filterWeek)
+      ),
     [rows, filterSeason, filterWeek]
   );
-
-  // 5) Build chart data
   const chartData = useMemo(() => {
     if (!selectedStat) return null;
     const def = STAT_DEFINITIONS[selectedStat];
     return {
       labels: chartRows.map(r => `W${r.week} vs ${r.opponent_team}`),
-      datasets: [{
-        label: def?.abbr || selectedStat,
-        data: chartRows.map(r => Number(r[selectedStat]) || 0),
-      }],
+      datasets: [{ label: def?.abbr || selectedStat, data: chartRows.map(r => Number(r[selectedStat]) || 0) }],
     };
   }, [selectedStat, chartRows]);
 
-  return (
-    <div className="stats-with-chart">
+  // 5) Section renderer
+  const renderSection = (title: string, keys: string[]) => (
+    <div className="stats-section">
+      <h3>{title}</h3>
       <table className="stats-table">
         <thead>
           <tr>
-            {displayKeys.map(key => {
+            {['season', 'week', 'opponent_team'].map(k => (
+              <th key={k}>{STAT_DEFINITIONS[k]?.abbr || k}</th>
+            ))}
+            {keys.map(key => {
               const def = STAT_DEFINITIONS[key];
               return (
                 <th
                   key={key}
                   title={def ? `${def.name}: ${def.description}` : key}
                   onClick={() => setSelectedStat(key)}
-                  style={{ cursor: 'pointer', background: selectedStat === key ? 'rgba(255,255,255,0.1)' : undefined }}
+                  style={{
+                    cursor: 'pointer',
+                    background: selectedStat === key ? 'rgba(255,255,255,0.1)' : undefined,
+                  }}
                 >
-                  {def ? def.abbr : key}
+                  {def?.abbr || key}
                 </th>
               );
             })}
@@ -148,13 +158,116 @@ const StatsTableWithChart: React.FC<Props> = ({ data }) => {
         <tbody>
           {rows.map((r, i) => (
             <tr key={i}>
-              {displayKeys.map(c => {
-                const val = r[c];
-                let display: React.ReactNode;
-                if (val == null) display = '–';
-                else if (typeof val === 'object') display = JSON.stringify(val);
-                else display = val;
-                return <td key={c}>{display}</td>;
+              {['season', 'week', 'opponent_team'].map(c => (
+                <td key={c}>{r[c] ?? '–'}</td>
+              ))}
+              {keys.map(c => {
+                const cell = r[c];
+                const disp =
+                  cell == null ? '–' : typeof cell === 'object' ? JSON.stringify(cell) : cell;
+                return <td key={c}>{disp}</td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  if (isPlayer) {
+    // split keys
+    const passingKeys = allKeys.filter(k => k.startsWith('passing_'));
+    const rushingKeys = allKeys.filter(k => k.startsWith('rushing_'));
+    const receivingKeys = allKeys.filter(k => k.startsWith('receiving_'));
+
+    // only render if there's at least one non-null cell in that group
+    const hasPassing = rows.some(r => passingKeys.some(k => r[k] != null));
+    const hasRushing = rows.some(r => rushingKeys.some(k => r[k] != null));
+    const hasReceiving = rows.some(r => receivingKeys.some(k => r[k] != null));
+
+    return (
+      <div className="stats-with-chart">
+        {hasPassing && renderSection('Passing Stats', passingKeys)}
+        {hasRushing && renderSection('Rushing Stats', rushingKeys)}
+        {hasReceiving && renderSection('Receiving Stats', receivingKeys)}
+
+        {selectedStat && (
+          <div className="chart-section">
+            <div className="filters">
+              <label>
+                Season:
+                <select
+                  value={filterSeason}
+                  onChange={e =>
+                    setFilterSeason(e.target.value === '' ? '' : Number(e.target.value))
+                  }
+                >
+                  <option value="">All</option>
+                  {seasons.map(y => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Week:
+                <select
+                  value={filterWeek}
+                  onChange={e => setFilterWeek(e.target.value === '' ? '' : Number(e.target.value))}
+                >
+                  <option value="">All</option>
+                  {weeks.map(w => (
+                    <option key={w} value={w}>
+                      {w}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            {chartData && (
+              <div className="chart-container">
+                <Chart data={chartData} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // fallback single table for team stats
+  return (
+    <div className="stats-with-chart">
+      <table className="stats-table">
+        <thead>
+          <tr>
+            {allKeys.map(key => {
+              const def = STAT_DEFINITIONS[key];
+              return (
+                <th
+                  key={key}
+                  title={def ? `${def.name}: ${def.description}` : key}
+                  onClick={() => setSelectedStat(key)}
+                  style={{
+                    cursor: 'pointer',
+                    background: selectedStat === key ? 'rgba(255,255,255,0.1)' : undefined,
+                  }}
+                >
+                  {def?.abbr || key}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i}>
+              {allKeys.map(c => {
+                const cell = r[c];
+                const disp =
+                  cell == null ? '–' : typeof cell === 'object' ? JSON.stringify(cell) : cell;
+                return <td key={c}>{disp}</td>;
               })}
             </tr>
           ))}
@@ -168,10 +281,16 @@ const StatsTableWithChart: React.FC<Props> = ({ data }) => {
               Season:
               <select
                 value={filterSeason}
-                onChange={e => setFilterSeason(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={e =>
+                  setFilterSeason(e.target.value === '' ? '' : Number(e.target.value))
+                }
               >
                 <option value="">All</option>
-                {seasons.map(y => <option key={y} value={y}>{y}</option>)}
+                {seasons.map(y => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
               </select>
             </label>
             <label>
@@ -181,7 +300,11 @@ const StatsTableWithChart: React.FC<Props> = ({ data }) => {
                 onChange={e => setFilterWeek(e.target.value === '' ? '' : Number(e.target.value))}
               >
                 <option value="">All</option>
-                {weeks.map(w => <option key={w} value={w}>{w}</option>)}
+                {weeks.map(w => (
+                  <option key={w} value={w}>
+                    {w}
+                  </option>
+                ))}
               </select>
             </label>
           </div>
