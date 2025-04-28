@@ -49,14 +49,81 @@ Playbook Insights is an open-source NFL analytics and data visualization platfor
 - Python ≥3.9  
 - PostgreSQL ≥13  
 
-### Using Docker Compose  
+# Docker Compose Overview
+
+Playbook Insights is fully containerized — the **frontend**, **backend**, **data aggregator**, and **PostgreSQL database** all run inside a **single Docker container**.
+
+This keeps everything local, fast, and avoids external hosting costs.
+
+Here’s an overview of the provided `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        VITE_API_URL: http://localhost:5080/api  # Frontend connects to API
+    volumes:
+      - ./Database:/docker-entrypoint-database  # Database initialization scripts (if needed)
+    container_name: playbook-insights
+    ports:
+      - "5080:5080"   # Frontend available at http://localhost:5080
+      - "3000:3000"   # API server available at http://localhost:3000
+      - "5000:5000"   # Aggregator service port (reserved)
+      - "5432:5432"   # Internal PostgreSQL database port
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      PLAYER_DB_NAME: playbook_insights_player_db
+      TEAM_DB_NAME: playbook_insights_team_db
+      POSTGRES_HOST: 127.0.0.1  # Database runs inside the same container
+      POSTGRES_PORT: 5432
+      PLAYER_DATABASE_URL: postgresql://myuser:mypassword@127.0.0.1:5432/playbook_insights_player_db
+      TEAM_DATABASE_URL: postgresql://myuser:mypassword@127.0.0.1:5432/playbook_insights_team_db
+      DB_SERVER_HOSTNAME: 127.0.0.1
+      DB_SERVER_PORT: 5432
+      DB_SERVER_USERNAME: myuser
+      DB_SERVER_PASSWORD: mypassword
+      API_PORT: 3000
+      NODE_ENV: production
+    restart: always
+```
+
+## Key Points
+
+- **Everything inside one container**: No external PostgreSQL server is needed.
+- **Ports exposed**:
+  - `5080`: Frontend (React UI)
+  - `3000`: Backend (API server)
+  - `5000`: Data ingestion / aggregator (optional)
+  - `5432`: PostgreSQL database (for optional external connections)
+- **Environment Variables**:
+  - Configure database names, credentials, and API settings.
+  - Use `127.0.0.1` to ensure internal container communication.
+- **Volumes**:
+  - `./Database` can store initial database setup scripts (optional for first-time setup).
+
+## Running the App with Docker Compose
+
 ```bash
 git clone https://github.com/yourusername/playbook-insights.git
 cd playbook-insights
 docker-compose up --build
 ```
 
-### Manual Setup  
+Then access:
+- Frontend UI: [http://localhost:5080](http://localhost:5080)  
+- API Server: [http://localhost:3000](http://localhost:3000)
+
+## Notes
+
+- The included PostgreSQL database is **optimized for local development** and **self-contained**.
+- For production deployment, you can adjust the environment variables to point to an external PostgreSQL database if needed.
+
+# Manual Setup  
 ```bash
 # Backend
 cd API
