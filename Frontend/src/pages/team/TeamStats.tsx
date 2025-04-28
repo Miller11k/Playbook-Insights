@@ -3,6 +3,9 @@ import axios, { AxiosError } from 'axios';
 import Chart from '../../components/charts/Chart'; 
 import './TeamStats.css';
 import { debounce } from 'lodash';
+// import StatsTable from '../../components/StatsTable';
+import StatsTableWithChart from '../../components/StatsTableWithChart';
+
 
 // --- Interfaces ---
 // Interface for team search result structure
@@ -323,6 +326,9 @@ const TeamStats: React.FC = () => {
           <Chart data={chartData} />
         </div>
       )}
+
+      {/* ↓ Detailed per‐game breakdown for the selected team */}
+      {rawData.length > 0 && <StatsTableWithChart data={rawData} />}
     </div>
   );
 };

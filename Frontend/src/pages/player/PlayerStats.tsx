@@ -3,6 +3,10 @@ import axios, { AxiosError } from 'axios';
 import Chart from '../../components/charts/Chart'; // Ensure path is correct
 import './PlayerStats.css'; // Ensure CSS is loaded
 import { debounce } from 'lodash';
+// import StatsTable from '../../components/StatsTable';
+import StatsTableWithChart from '../../components/StatsTableWithChart';
+
+
 
 // --- Interfaces ---
 interface PlayerSearchResult { id: string; name: string; }
@@ -475,10 +479,14 @@ const PlayerStats: React.FC = () => {
 
       {/* Player Chart */}
       {playerChartData && !isLoading && ( <div className="chart-container" style={{ marginBottom: '1rem' }}> <Chart data={playerChartData} /> </div> )}
+      {/* full game‐log breakdown for player #1 */}
+      {playerGameLogs[0] && (<StatsTableWithChart data={playerGameLogs[0]} />)}
 
       {/* Defensive Section Toggle & Content */}
       {playerChartData && !isLoading && ( <button className="toggle-defense-button" onClick={toggleDefensiveSection}> <span style={{ marginRight: '8px', fontSize: '1.2em' }}>{showDefensiveSelector ? '-' : '+'}</span> See Defensive Strength </button> )}
       {showDefensiveSelector && playerChartData && ( <div className="opponent-defensive-section"> <h3>Opponent Defensive Performance ({selectedStatConfig.opponentChartLabel})</h3> <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}> <label htmlFor="opponent-select" style={{ color: 'var(--text-muted)', marginRight: '10px' }}>Select Defensive Team:</label> <select id="opponent-select" value={selectedOpponentTeam} onChange={(e) => setSelectedOpponentTeam(e.target.value)} > <option value="">-- Select Team --</option> {nflTeams.map(team => (<option key={team.code} value={team.code}>{team.name} ({team.code})</option>))} </select> </div> {opponentDefLoading && <p className="loading-text">Loading defensive stats...</p>} {opponentDefError && <p className="error-message">{opponentDefError}</p>} {opponentDefChartData && !opponentDefLoading && !opponentDefError && ( <div className="chart-container"> <Chart data={opponentDefChartData} /> </div> )} </div> )}
+
+
 
     </div> // End stats-container
   );

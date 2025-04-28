@@ -1,0 +1,36 @@
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+  .stats-table th,
+  .stats-table td {
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 0.5rem;
+    text-align: center;
+    color: var(--text-color);
+  }
+  .stats-table th {
+    background: rgba(0,0,0,0.3);
+  }
+  .stats-table tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.05);
+  }
+  
+  .chart-section {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+  
+  .filters {
+    display: inline-flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .filters label {
+    color: var(--text-color);
+  }
+  .filters select {
+    margin-left: 0.5rem;
+  }
+  
