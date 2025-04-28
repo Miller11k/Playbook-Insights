@@ -86,7 +86,7 @@ export async function getPlayerPassingStats(req: Request, res: Response): Promis
             return;
         }
 
-        res.status(200).json(filteredResult.map(row => row.passing_stats));
+        res.status(200).json(filteredResult);
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });

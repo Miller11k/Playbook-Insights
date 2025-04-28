@@ -80,24 +80,38 @@ export async function getTeamDefensiveStats(req: Request, res: Response): Promis
         }
 
         const query = `
-            SELECT defensive_stats 
-            FROM "${tableName}" 
-            ${filters.length ? "WHERE " + filters.join(" AND ") : ""};
+            SELECT
+                week,
+                opponent_team,
+                defensive_stats
+            FROM "${tableName}"
+            ${filters.length ? "WHERE " + filters.join(" AND ") : ""}
+            ORDER BY season ASC, week ASC
         `;
-
+        console.log(`Executing query: ${query} with values: ${JSON.stringify(values)}`);
         const result = await teamDBClient.query(query, values);
-        const filteredResult = filterNullValues(result.rows, "defensive_stats");
 
-
-        if ((filteredResult.length === 0) && (result.rows.length != 0)) {
-            res.status(204).json({ error: "All team defensive stats found for specified criteria were null." });
-            return;
-        } else if (result.rows.length === 0) {
-            res.status(404).json({ error: "No defensive stats found for the specified criteria." });
-            return;
+        // No rows at all?
+        if (result.rows.length === 0) {
+        res.status(404).json({ error: "No defensive stats found for the specified criteria." });
+        return;
         }
 
-        res.status(200).json(filteredResult.map(row => row.defensive_stats));
+        // Filter out any rows whose stats blob is null
+        const rowsWithStats = result.rows.filter(r => r.defensive_stats != null);
+        if (rowsWithStats.length === 0) {
+        res.status(204).json({ error: "All defensive stats for specified criteria were null." });
+        return;
+        }
+
+        // Merge week & opponent_team into the stats object
+        const responseData = rowsWithStats.map(row => ({
+        week:       row.week,
+        opponent_team: row.opponent_team,
+        ...row.defensive_stats
+        }));
+
+        res.status(200).json(responseData);
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });

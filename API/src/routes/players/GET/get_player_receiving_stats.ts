@@ -88,7 +88,7 @@ export async function getPlayerReceivingStats(req: Request, res: Response): Prom
         }
 
         // Return an array of receiving_stats JSON objects.
-        res.status(200).json(filteredResult.map(row => row.receiving_stats));
+        res.status(200).json(filteredResult);
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).json({ error: "Internal Server Error" });

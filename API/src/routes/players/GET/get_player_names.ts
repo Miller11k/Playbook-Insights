@@ -51,10 +51,11 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
                     WHEN LOWER(info->>'name') = LOWER($2) THEN 2
                     ELSE 3
                 END,
+                id DESC,
                 info->>'display_name'
             LIMIT 20;
         `;
-        const values = [`%${searchTerm}%`, searchTerm]; // For exact match ordering
+        const values = [`%${searchTerm}%`, searchTerm];
 
 
         const result = await playerDBClient.query(query, values);
