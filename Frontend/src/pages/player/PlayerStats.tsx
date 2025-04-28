@@ -5,6 +5,7 @@ import './PlayerStats.css'; // Ensure CSS is loaded
 import { debounce } from 'lodash';
 // import StatsTable from '../../components/StatsTable';
 import StatsTableWithChart from '../../components/StatsTableWithChart';
+import { Helmet } from 'react-helmet'
 
 
 
@@ -400,6 +401,12 @@ const PlayerStats: React.FC = () => {
 
   // --- Render --- (Keep JSX structure exactly as provided)
   return (
+    <>
+    <Helmet>
+      <title>Player Stats | Playbook Insights</title>
+    </Helmet>
+
+    <h2>Player Stats</h2>
     <div className="stats-container player-stats-page-container">
       <h2>Player {selectedStatConfig.playerChartLabelSuffix} Stats</h2>
 
@@ -489,6 +496,8 @@ const PlayerStats: React.FC = () => {
 
 
     </div> // End stats-container
+    </>
+
   );
 };
 

@@ -5,6 +5,8 @@ import './TeamStats.css';
 import { debounce } from 'lodash';
 // import StatsTable from '../../components/StatsTable';
 import StatsTableWithChart from '../../components/StatsTableWithChart';
+import { Helmet } from 'react-helmet';
+
 
 
 // --- Interfaces ---
@@ -255,6 +257,12 @@ const TeamStats: React.FC = () => {
 
   // --- Render ---
   return (
+    <>
+    <Helmet>
+      <title>Team Stats | Playbook Insights</title>
+    </Helmet>
+
+    <h2>Team Stats</h2>
     <div className="stats-container">
       <h2>Team {selectedCategoryConfig.label}</h2>
 
@@ -330,6 +338,7 @@ const TeamStats: React.FC = () => {
       {/* ↓ Detailed per‐game breakdown for the selected team */}
       {rawData.length > 0 && <StatsTableWithChart data={rawData} />}
     </div>
+    </>
   );
 };
 
