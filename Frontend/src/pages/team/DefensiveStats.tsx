@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios';
 import Chart from '../../components/charts/Chart';
 import './TeamStats.css';
 import { debounce } from 'lodash';
+import { Helmet } from 'react-helmet'
 
 // --- Interfaces ---
 // Structure of the defensive stats returned from API
@@ -243,6 +244,12 @@ const TeamDefensiveStats: React.FC = () => {
 
   // --- Render ---
   return (
+    <>
+    <Helmet>
+      <title>Defensive Stats | Playbook Insights</title>
+    </Helmet>
+
+    <h2>Defensive Stats</h2>
     <div className="stats-container">
       <h2>Team Defensive Stats</h2>
 
@@ -328,6 +335,8 @@ const TeamDefensiveStats: React.FC = () => {
         </div>
       )}
     </div>
+    </>
+
   );
 };
 
