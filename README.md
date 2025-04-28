@@ -22,24 +22,74 @@ Playbook Insights is an open-source NFL analytics and data visualization platfor
 - React UI for data exploration  
 - Dockerized deployment
 
-<details>
-<summary>System Architecture & Directory Tree</summary>
 
+# Project Architecture
+
+Playbook Insights is structured into three main components—**Aggregator**, **API**, and **Frontend**—working together to deliver a full-stack NFL analytics platform. Everything is containerized for easy deployment via Docker Compose.
+
+## Architecture Overview
 ```
 .
-├── Aggregator/            # Python ingestion & processing
-│   ├── data_ingestion/
-│   └── main.py
-├── API/                   # Node.js/TypeScript Express backend
-│   ├── src/
-│   └── routes/
-├── Frontend/              # React/TypeScript application
-│   └── src/
-├── docs/                  # API docs (API.md)
-├── docker-compose.yml
-└── README.md
+├── Aggregator/            # Python-based data ingestion and processing
+├── API/                   # Node.js/TypeScript backend (Express server)
+├── Frontend/              # React/TypeScript frontend (Vite + React)
+├── Database/              # Pre-built PostgreSQL database backups
+├── docs/                  # API documentation
+├── initdb/                # SQL scripts to create initial databases
+├── postgres-data/         # Persistent Docker volume for PostgreSQL
+├── docker-compose.yml     # Compose file to orchestrate services
+├── dockerfile             # Base Dockerfile (deprecated, moved to services)
+├── entrypoint.sh          # Entrypoint script for service startup
+├── nginx.conf             # Nginx configuration (for production proxy)
+├── install.sh             # One-command install script
+└── README.md              # This documentation
 ```
-</details>
+
+## Components
+
+### Aggregator (Python Ingestion Service)
+- **Location**: `Aggregator/`
+- **Purpose**: Fetches NFL player and team data from external sources, processes it, and loads it into the database.
+- **Main Entry Point**: `data_ingestion/main.py`
+- **Subdirectories**:
+  - `player_data/`, `team_data/`: Organized modules for ingesting different types of data.
+  - `utils.py`: Helper functions for cleaning and structuring raw data.
+- **Key Technology**: Python 3.9+, `requests`, `psycopg2` for database operations.
+
+### API (Node.js/TypeScript Backend)
+- **Location**: `API/`
+- **Purpose**: Exposes a RESTful API for retrieving player, team, and game data. Acts as the main server.
+- **Main Entry Point**: `src/server.ts`
+- **Key Modules**:
+  - `routes/`: Organized by feature (search, player stats, team stats).
+  - `config/`: Environment config (e.g., database credentials).
+  - `helpers/`: Shared utilities like request logging and validation.
+- **Testing**: Jest-based unit and integration tests under `__tests__/`.
+- **Key Technology**: Node.js 18+, Express.js, TypeScript, PostgreSQL.
+
+### Frontend (React Dashboard)
+- **Location**: `Frontend/`
+- **Purpose**: User-facing dashboard to search, view, and analyze NFL player and team data.
+- **Main Entry Point**: `src/main.tsx`
+- **Subdirectories**:
+  - `components/`: Reusable UI components.
+  - `pages/`: Core application views (e.g., Search, Team View, Player View).
+  - `services/`: Handles API calls to the backend.
+- **Key Technology**: React 18, TypeScript, Vite, Tailwind CSS (optional styling).
+
+### Database
+- **Location**: `Database/` and `postgres-data/`
+- **Purpose**: Persistent data storage via PostgreSQL.
+- **Setup**:
+  - `playbook_insights_player_db.backup` and `playbook_insights_team_db.backup`: Prebuilt database backups.
+  - `initdb/01-create-databases.sql`: SQL script to create databases automatically at container start.
+
+## Infrastructure
+
+- **docker-compose.yml**: Spins up all services (Aggregator, API, Frontend, Database) as interconnected containers.
+- **nginx.conf**: (Optional) Proxy server configuration for SSL termination and URL routing in production deployments.
+- **entrypoint.sh**: Orchestrates startup tasks inside containers (e.g., restoring databases, migrating data).
+- **install.sh**: Quick install script that automatically pulls, builds, and runs everything.
 
 ## Quick Start
 
