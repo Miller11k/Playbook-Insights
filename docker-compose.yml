@@ -6,7 +6,7 @@ services:
     build:
       context: .
       args:
-        VITE_API_URL: http://localhost:5080/api
+        VITE_API_URL: /api
     volumes:
       - ./Database:/docker-entrypoint-database
     container_name: playbook-insights
