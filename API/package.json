@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "bash -c 'source .env && node dist/server.js'",
+    "start": "bash -c 'node dist/server.js'",
     "start-server": "bash -c 'source .env && node dist/server.js'",
     "start-dev": "bash -c 'source .env.dev && node dist/server.js'",
     "test": "jest --detectOpenHandles"
