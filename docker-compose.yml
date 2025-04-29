@@ -14,7 +14,7 @@ services:
       - "5080:5080"   # Frontend
       - "3000:3000"   # API
       - "5000:5000"   # Aggregator or other services
-      - "5432:5432"   # PostgreSQL (optional)
+      - "5432:5432"   # PostgreSQL
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
