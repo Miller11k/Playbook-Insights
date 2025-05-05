@@ -37,16 +37,10 @@ def lambda_handler(event, context):
         player_engine = initialize_player_database(player_db_url)
         team_engine = initialize_team_database(team_db_url)
 
-        # Note: You might not need sessions if the update functions only need the engine
-        # player_session = get_player_session(player_engine)
-        # team_session = get_team_session(team_engine)
-
         print("[INFO] Databases initialized. Starting data update...")
 
-        # Determine the year(s) to update. Usually just the current or previous season.
-        # This might need refinement based on how your update logic works.
-        # For a weekly update, you often only need the current NFL season year.
-        update_years = [current_year] # Or maybe [current_year-1, current_year] depending on season timing
+       
+        update_years = [current_year] 
 
         update_player_game_logs(player_engine, update_years)
         update_team_game_logs(team_engine, update_years)
